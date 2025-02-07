@@ -25,6 +25,12 @@
     "DG.plugin.Scrambler.sScrambledDatasetPrefix": "scrambled_",
     "DG.plugin.Scrambler.sMeasureDatasetPrefix": "measures_from_"
   },
+  "fr": {
+    "DG.plugin.Scrambler.language": "Anglais",
+    "DG.plugin.Scrambler.static.cantScrambleStripe": "Réparer pour continuer.",
+    "DG.plugin.Scrambler.static.howManyLabel": "combien?",
+    "DG.plugin.Scrambler.sOr": "ou"
+  },
   "de": {
     "DG.plugin.Scrambler.name": "Mischmaschine",
     "DG.plugin.Scrambler.language": "Deutsch",
