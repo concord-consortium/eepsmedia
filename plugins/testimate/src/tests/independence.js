@@ -1,3 +1,6 @@
+/* global testimate, data, Test, jStat, ui, localize */
+
+
 class Independence extends Test {
 
     constructor(iID) {
@@ -38,7 +41,7 @@ class Independence extends Test {
             const row = this.results.rowLabels.indexOf(X[ix]);
             const column = this.results.columnLabels.indexOf(Y[ix]);
             this.results.observed[column][row]++;
-            this.results.rowTotals[row]++
+            this.results.rowTotals[row]++;
             this.results.columnTotals[column]++;
         }
 
@@ -50,7 +53,7 @@ class Independence extends Test {
                 this.results.expected[c][r] = this.results.columnTotals[c] * this.results.rowTotals[r] / this.results.N;
                 const contrib = (this.results.observed[c][r] - this.results.expected[c][r]) ** 2
                     / this.results.expected[c][r];
-                this.results.chisq += contrib
+                this.results.chisq += contrib;
             }
         }
 
@@ -78,7 +81,7 @@ class Independence extends Test {
         let out = "<pre>";
         out += localize.getString("tests.independence.testQuestion",
             testimate.state.y.name, testimate.state.x.name);
-        out += `<br>    N = ${N}, ${this.results.columnLabels.length} columns by ${this.results.rowLabels.length} rows, `
+        out += `<br>    N = ${N}, ${this.results.columnLabels.length} columns by ${this.results.rowLabels.length} rows, `;
         out += `&chi;<sup>2</sup> = ${chisq}, ${P}`;
         out += `<details id="TIdetails" ${TIopen ? "open" : ""}>`;
         out += localize.getString("tests.independence.detailsSummary", testimate.state.testParams.sides);

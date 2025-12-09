@@ -1,3 +1,5 @@
+/* global testimate, data, Test, jStat, ui, localize */
+
 class ANOVA extends Test {
 
     constructor(iID) {
@@ -135,16 +137,16 @@ class ANOVA extends Test {
 
         let theHTML = "<table class = 'test-results'>";
         theHTML += "<tr><th>Source</th><th>(SS)</th><th>df</th><th>(MS)</th><th>F</th><th>P</th></tr>";
-        theHTML += `<tr><th>${treatmentString}</th><td>${SSR}</td><td>${dfT}</td><td>${MST}</td><td>${F}</td><td>${P}</td></tr>`
-        theHTML += `<tr><th>${errorString}</th><td>${SSE}</td><td>${dfE}</td><td>${MSE}</td><td></td></tr>`
-        theHTML += `<tr><th>${totalString}</th><td>${SST}</td><td>${dfTotal}</td><td></td><td></td></tr>`
-        theHTML += `</table>`
+        theHTML += `<tr><th>${treatmentString}</th><td>${SSR}</td><td>${dfT}</td><td>${MST}</td><td>${F}</td><td>${P}</td></tr>`;
+        theHTML += `<tr><th>${errorString}</th><td>${SSE}</td><td>${dfE}</td><td>${MSE}</td><td></td></tr>`;
+        theHTML += `<tr><th>${totalString}</th><td>${SST}</td><td>${dfTotal}</td><td></td><td></td></tr>`;
+        theHTML += `</table>`;
 
         return theHTML;
     }
 
     makeDescriptiveTable() {
-        const meanOfX = localize.getString("tests.anova.meanOfX",testimate.state.x.name)
+        const meanOfX = localize.getString("tests.anova.meanOfX",testimate.state.x.name);
 
         let nameRow = `<tr><th>${data.yAttData.name} &rarr;</th>`;
         let countRow = `<tr><td>${localize.getString("count")}</td>`;
@@ -174,13 +176,13 @@ class ANOVA extends Test {
      */
     static makeMenuString() {
         return localize.getString("tests.anova.menuString",
-            testimate.state.x.name, testimate.state.y.name)
+            testimate.state.x.name, testimate.state.y.name);
         //  return `ANOVA: ${testimate.state.x.name} by ${testimate.state.y.name}`;
     }
 
     makeConfigureGuts() {
         const configStart = localize.getString("tests.anova.configStart",
-            testimate.state.x.name, testimate.state.y.name)
+            testimate.state.x.name, testimate.state.y.name);
         const conf = ui.confBoxHTML(testimate.state.testParams.conf);
         let theHTML = `${configStart}:<br>&emsp;${conf}`;
 

@@ -1,3 +1,6 @@
+/* global testimate, data, Test, jStat, ui, localize */
+
+
 class Goodness extends Test {
 
     constructor(iID) {
@@ -24,12 +27,12 @@ class Goodness extends Test {
         this.results.groupNames.forEach( v => {
             this.results.observed[v] = 0;
             this.results.expected[v] = this.results.N * testimate.state.testParams.groupProportions[v];
-        })
+        });
 
         //`count the observed values in each category
         A.forEach( a => {
             this.results.observed[a]++;
-        })
+        });
 
         //  counts array now has all counts.
 
@@ -39,7 +42,7 @@ class Goodness extends Test {
             const cellValue = (this.results.observed[v] - this.results.expected[v])**2
                 / this.results.expected[v];
             this.results.chisq += cellValue;
-        })
+        });
 
         const theCIparam = 1 - testimate.state.testParams.alpha / testimate.state.testParams.sides;   //  the large number
         this.results.df = this.results.groupNames.length - 1;
@@ -86,7 +89,7 @@ class Goodness extends Test {
             nameRow += `<th>${v}</th>`;
             observedRow += `<td>${this.results.observed[v]}</td>`;
             expectedRow += `<td>${ui.numberToString(this.results.expected[v], 3)}</td>`;
-        })
+        });
 
         nameRow += `</tr>`;
         observedRow += `</tr>`;
@@ -121,7 +124,7 @@ class Goodness extends Test {
                 out[old] = newVal;
                 sum += newVal;
             }
-        })
+        });
 
         //  how many do we still have to find?
         const leftOut = newGroups.length - Object.keys(out).length;
@@ -134,7 +137,7 @@ class Goodness extends Test {
             if (!out.hasOwnProperty(n))   {       //  haven't done it yet!
                 out[n] = (1 - sum)/leftOut;
             }
-        })
+        });
 
         return out;
     }
@@ -175,12 +178,12 @@ class Goodness extends Test {
 
         //  start the table of values. These are not results per se, but we class the table that way.
 
-        theHTML += `<table class="test-results">`
+        theHTML += `<table class="test-results">`;
 
         //  the last group name will absorb any leftover proportion
         const lastGroupName = this.results.groupNames[this.results.groupNames.length - 1];
         this.results.groupNames.forEach( g => {
-            const theProp  = ui.numberToString(testimate.state.testParams.groupProportions[g],3)
+            const theProp  = ui.numberToString(testimate.state.testParams.groupProportions[g],3);
             nameRow += `<th>${g}</th>`;
             valueRow += (g === lastGroupName) ?   //  (the last one)
                 `<td id="lastProp">${theProp}</td>` :
@@ -188,7 +191,7 @@ class Goodness extends Test {
                     step=".01" min="0" max="1"
                     id="GProp_${g}"
                     onchange="handlers.changeGoodnessProp('${lastGroupName}')"></input></td>`;
-        })
+        });
 
         theHTML += `${nameRow}${valueRow}</table>`;
         theHTML += `</details>`;
@@ -201,7 +204,7 @@ class Goodness extends Test {
         const theLabel = localize.getString("equalize") + "&nbsp;&rarr;";
         return `<input id="equalExpectationsButton" type="button" 
                 onclick="Goodness.equalizeExpectations()" 
-                value=${theLabel} title="${theTip}">`
+                value=${theLabel} title="${theTip}">`;
     }
 
     static equalizeExpectations() {

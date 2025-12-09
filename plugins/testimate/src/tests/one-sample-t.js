@@ -1,3 +1,5 @@
+/* global testimate, data, Test, jStat, ui, localize */
+
 class OneSampleT extends Test {
 
     constructor(iID) {

@@ -1,3 +1,6 @@
+/* global testimate, data, Test, jStat, ui, localize */
+
+
 class TwoSampleP extends Test {
 
     constructor(iID, iGrouping) {
@@ -59,16 +62,16 @@ class TwoSampleP extends Test {
         this.results.successesA = 0;
         A.forEach( a => {
             this.results.N1++;
-            if (a === this.results.successValueA) this.results.successesA++
-        })
+            if (a === this.results.successValueA) this.results.successesA++;
+        });
 
         //  count cases and successes in "B"
         this.results.N2 = 0;
         this.results.successesB = 0;
         B.forEach( b => {
             this.results.N2++;
-            if (b === this.results.successValueB) this.results.successesB++
-        })
+            if (b === this.results.successValueB) this.results.successesB++;
+        });
 
         this.results.N = this.results.N1 + this.results.N2;
         if (this.results.N1 > 0 && this.results.N2 > 0) {
@@ -87,7 +90,7 @@ class TwoSampleP extends Test {
             this.results.SEinterval = Math.sqrt(
                 this.results.prop1 * (1 - this.results.prop1) / this.results.N1 +
                 this.results.prop2 * (1 - this.results.prop2) / this.results.N2
-            )
+            );
 
             //  the test p1 - p2
             this.results.pDiff = this.results.prop1 - this.results.prop2;
@@ -146,7 +149,7 @@ class TwoSampleP extends Test {
         out += `<details id="DSdetails" ${DSopen ? "open" : ""}>`;
         out += localize.getString("tests.twoSampleP.detailsSummary");
         out += this.makeTwoSampleTable();
-        out += `<br>     &alpha; = ${alpha}, z* = ${zCrit}</p>`
+        out += `<br>     &alpha; = ${alpha}, z* = ${zCrit}</p>`;
         out += `</details>`;
 
         out += `</pre>`;
@@ -185,7 +188,7 @@ class TwoSampleP extends Test {
         out += `<tr><td>${pooled}</td><td>${succA + succB} / ${N}</td><td>${prop}</td><td>${SE}</td></tr>`;
         out += `</table>`;
 
-        return out
+        return out;
     }
 
 
@@ -208,7 +211,7 @@ class TwoSampleP extends Test {
             `${configStart}: <br>&emsp;(${testimate.state.x.name} = ${ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX)} ) : ${ui.focusGroupButtonYHTML(testimate.state.testParams.focusGroupY)} - ${this.results.labelB}` :
             `${configStart}: <br>&emsp;(${testimate.state.x.name} = ${ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX)}) - (${testimate.state.y.name} = ${ui.focusGroupButtonYHTML(testimate.state.testParams.focusGroupY)}) `;
         const sides = ui.sidesBoxHTML(testimate.state.testParams.sides);
-        const value = ui.valueBoxHTML(testimate.state.testParams.value, 0.0, 1.0, .05);
+        const value = ui.valueBoxHTML(testimate.state.testParams.value, 0.0, 1.0, 0.05);
         const conf = ui.confBoxHTML(testimate.state.testParams.conf);
         let theHTML = `${intro} ${sides} ${value} <br>&emsp;${conf}`;
 

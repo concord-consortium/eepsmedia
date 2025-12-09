@@ -11,6 +11,9 @@
  * 
  * The member `this.grouping` tells which kind of test it is.
  */
+
+/* global testimate, data, Test, handlers, jStat, ui, localize */
+
 class TwoSampleT extends Test {
 
     constructor(iID, iGrouping) {
@@ -42,11 +45,11 @@ class TwoSampleT extends Test {
 
         if (this.grouping) {
             [A, B] = Test.splitByGroup(A, B, testimate.state.testParams.focusGroupY);
-            console.log(`A = ${A}, B = ${B}`);
+            //  console.log(`A = ${A}, B = ${B}`);
             this.results.group1Name = testimate.state.testParams.focusGroupY;     //  the name of a value in the second att
             this.results.group2Name = data.yAttData.isBinary() ?
                 handlers.nextValueInList([...data.yAttData.valueSet], testimate.state.testParams.focusGroupY) :  //  the OTHER value
-                `not ${testimate.state.testParams.focusGroupY}`          //   or a more general label, NOT "a"
+                `not ${testimate.state.testParams.focusGroupY}`;          //   or a more general label, NOT "a"
         }
 
         const j0 = jStat(A);
@@ -94,6 +97,17 @@ class TwoSampleT extends Test {
         this.results.CImax = this.results.diff + this.results.tCrit * this.results.SE;
         this.results.CImin = this.results.diff - this.results.tCrit * this.results.SE;
 
+        if (this.grouping) {
+            this.results.meanNB1 = this.results.mean1;
+            this.results.meanNB2 = this.results.mean2;
+            this.results.sNB1 = this.results.s1;
+            this.results.sNB2 = this.results.s2;
+        } else {
+            this.results.meanNN1 = this.results.mean1;
+            this.results.meanNN2 = this.results.mean2;
+            this.results.sNN1 = this.results.s1;
+            this.results.sNN2 = this.results.s2;
+        }
     }
 
     makeResultsString() {
@@ -136,7 +150,7 @@ class TwoSampleT extends Test {
         out += `<details id="DSdetails" ${DSopen ? "open" : ""}>`;
         out += localize.getString("tests.twoSampleT.detailsSummary");      //   `<summary>Difference of means, <i>t</i> procedure</summary>`;
         out += this.makeTwoSampleTable();
-        out += `<br>    df = ${df}, &alpha; = ${alpha},  t* = ${tCrit}`
+        out += `<br>    df = ${df}, &alpha; = ${alpha},  t* = ${tCrit}`;
         out += `</details>`;
 
         out += `</pre>`;

@@ -1,4 +1,7 @@
 
+/* global testimate, data, Test, jStat, ui, localize, binomial */
+
+
 class OneSampleP extends Test {
 
     usingBinomial = false;
@@ -28,7 +31,7 @@ class OneSampleP extends Test {
         A.forEach( x => {
             N++;
             if (x === G) this.results.successes++;
-        })
+        });
 
         const theCIparam = 1 - testimate.state.testParams.alpha / 2;
 
@@ -126,7 +129,6 @@ class OneSampleP extends Test {
 
     makeTestDescription(iTestID, includeName) {
         return `mean of ${testimate.state.x.name}`;
-        return
     }
 
     /**

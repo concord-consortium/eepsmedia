@@ -1,3 +1,6 @@
+/* global testimate, data, Test, jStat, ui, localize */
+
+
 class Correlation extends Test {
 
     constructor(iID, iGrouping) {
@@ -105,7 +108,7 @@ class Correlation extends Test {
         out += `<br>    &rho; = ${rho}, r<sup>2</sup> = ${rsq}, N = ${N}`;  //  note reversal!
         out += `<br>    t = ${t}, ${P}`;
         out += `<br>    ${localize.getString("CI")} = [${CImin}, ${CImax}]`;
-        out += `<br>    df = ${df},  &alpha; = ${alpha}, t* = ${tCrit}, `
+        out += `<br>    df = ${df},  &alpha; = ${alpha}, t* = ${tCrit}, `;
         out += `</pre>`;
 
         return out;

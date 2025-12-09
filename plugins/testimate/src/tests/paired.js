@@ -1,5 +1,7 @@
-class Paired extends Test {
+/* global testimate, data, Test, jStat, ui, localize */
 
+
+class Paired extends Test {
 
     constructor(iID) {
         super(iID);

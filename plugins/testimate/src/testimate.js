@@ -1,3 +1,6 @@
+/* global data, Test, ui, localize, connect */
+
+
 const testimate = {
 
     state: {},
@@ -47,14 +50,14 @@ const testimate = {
                 testimate.state.testParamDictionary[testimate.theTest.testID] = testimate.state.testParams;
                 this.adjustTestSides();     //  todo: figure out if this is correct; shouldn't we compute the value before we do this?
 
-                data.removeInappropriateCases();    //  depends on the test's parameters being known (paired, numeric, etc)
+                data.removeInappropriateCases();    //  depends on the test's parameters being known (paired, numeric, etc.)
                 await this.theTest.updateTestResults();      //  with the right data and the test, we can calculate these results.
             } else {
-                console.log(`Unexpected: refreshing data and we don't have a test.`)
+                console.log(`Unexpected: refreshing data and we don't have a test.`);
             }
 
         } else {
-            console.log(`trying to refresh data but there is no dataset`)
+            console.log(`trying to refresh data but there is no dataset`);
         }
 
         //  codapInterface.updateInteractiveState(this.state);
@@ -78,16 +81,16 @@ const testimate = {
             if (!this.compatibleTestIDs.includes(this.state.testID)) {
                 //  if the current test is incompatible with the current data,
                 //  pick the first compatible one
-                this.makeFreshTest(this.compatibleTestIDs[0])
+                this.makeFreshTest(this.compatibleTestIDs[0]);
             }
         } else if (this.compatibleTestIDs.includes(this.state.testID)) {
-            //  there is no current theTest (e.g., we're restoring from save)
+            //  there is no current theTest (e.g., we're restoring from save),
             //  but there is a suitable testID (from the saved state)
             this.makeFreshTest(this.state.testID);
         } else if (this.compatibleTestIDs.length) {
             //  it should ALWAYS be possible to find a possible test.
             //  set theTest to the first one in the list
-            this.makeFreshTest(this.compatibleTestIDs[0])
+            this.makeFreshTest(this.compatibleTestIDs[0]);
         } else {
             alert(`somehow, we see no possible test IDs.`);
         }
@@ -237,4 +240,4 @@ const testimate = {
             valueDictionary : {},       //  records the number in the "value" box
         }
     }
-}
+};

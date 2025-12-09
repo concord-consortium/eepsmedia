@@ -1,3 +1,6 @@
+/* global testimate, data, Test, jStat, ui, localize */
+
+
 class Regression extends Test {
 
     constructor(iID, iGrouping) {
@@ -109,9 +112,9 @@ class Regression extends Test {
         out += `<table><tr><td>${slopeWord}</td><td>${slope}</td><td>${conf}% ${localize.getString("CI")} = [${CISmin}, ${CISmax}]</td></tr>`;
         out += `<tr><td>${interceptWord}</td><td>${intercept}</td><td>${conf}% ${localize.getString("CI")} = [${CIImin}, ${CIImax}]</td></tr></table>`;
         out += `<br> `;
-        out += `${testingSlopePhrase} ${testimate.state.testParams.theSidesOp} ${testimate.state.testParams.value} `
+        out += `${testingSlopePhrase} ${testimate.state.testParams.theSidesOp} ${testimate.state.testParams.value} `;
         out += `<br>    t = ${t}, ${P}`;
-        out += `<br>    df = ${df},  &alpha; = ${alpha}, t* = ${tCrit}, `
+        out += `<br>    df = ${df},  &alpha; = ${alpha}, t* = ${tCrit}, `;
         out += `</details>`;
         out += `<br> `;
         out += `</pre>`;
