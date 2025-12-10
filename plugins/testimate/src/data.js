@@ -1,3 +1,6 @@
+/* global testimate, connect, Test */
+
+
 const data = {
 
     dirtyData: true,
@@ -62,8 +65,6 @@ const data = {
      * We need this in order to figure out which tests are appropriate,
      * and (importantly) to set a test if it has not yet been set.
      *
-     * @param xName
-     * @param yName
      * @param data
      * @returns {Promise<void>}
      */
@@ -85,8 +86,8 @@ const data = {
 
         if (!testimate.theTest) return;
 
-        let newXArray = []
-        let newYArray = []
+        let newXArray = [];
+        let newYArray = [];
 
         const paired = Test.configs[testimate.theTest.testID].paired;
 
@@ -103,7 +104,7 @@ const data = {
                 } else {
                     xIntermediate.push(xx);     //  strings and nulls
                 }
-            })
+            });
         }
 
         let yIntermediate = [];
@@ -115,7 +116,7 @@ const data = {
                 } else {
                     yIntermediate.push(xx);     //  strings and nulls
                 }
-            })
+            });
         }
 
         //  now go through the intermediate arrays prudently eliminating null values
@@ -147,7 +148,7 @@ const data = {
         console.log(`    cleaned xAttData (${this.xAttData.theArray.length})`);
 
         if (this.xAttData.theArray.length < 20)
-            console.log(`cleaned x = ${JSON.stringify(this.xAttData.theArray)} \ncleaned y = ${JSON.stringify(this.yAttData.theArray)}`)
+            console.log(`cleaned x = ${JSON.stringify(this.xAttData.theArray)} \ncleaned y = ${JSON.stringify(this.yAttData.theArray)}`);
     },
 
     /**
@@ -159,7 +160,7 @@ const data = {
      * @returns {Promise<void>}
      */
     handleCaseChangeNotice: async function (iMessage) {
-        const theOp = iMessage.values.operation
+        const theOp = iMessage.values.operation;
         let tMess = theOp;
         //  console.log(`start ${tMess}`);
         switch (theOp) {
@@ -191,7 +192,7 @@ const data = {
                         testimate.state.y.name = att.name;       //  new name
                         testimate.state.dataTypes[att.name] = testimate.state.dataTypes[oldName];
                     }
-                })
+                });
                 data.dirtyData = true;
                 if (testimate.OKtoRespondToCaseChanges) await testimate.refreshDataAndTestResults();
                 break;
@@ -213,6 +214,12 @@ const data = {
         console.log(`attribute change!`);
     },
 
+    /**
+     * Checks if there is randomness in formulas.
+     *
+     * todo: change so that we check only the attributes being used in an analysis.
+     * @returns {boolean}
+     */
     sourceDSHasRandomness: function () {
         let out = false;
 
@@ -223,8 +230,8 @@ const data = {
                     if (f && f.indexOf("random") > -1) {
                         out = true;
                     }
-                })
-            })
+                });
+            });
         }
 
         return out;
@@ -238,7 +245,7 @@ const data = {
     },
 
     filterGroupCases: function(theWholeDataset, theFilterValues) {
-        out = [];
+        let out = [];
         theWholeDataset.forEach( d => {
             const theItem = d.values;
             let matches = true;
@@ -246,11 +253,11 @@ const data = {
                 if (theItem[k] !== theFilterValues[k]) {
                     matches = false;
                 }
-            })
+            });
             if (matches) {
                 out.push({values: theItem});
             }
-        })
+        });
 
         return out;
     },
@@ -261,12 +268,12 @@ const data = {
      * @returns {boolean}
      */
     isNumericString: function (str) {
-        if (typeof str != "string") return false;       // we only process strings!
+        if (typeof str !== "string") return false;       // we only process strings!
         return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-            !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+            !isNaN(parseFloat(str)); // ...and ensure strings of whitespace fail
     },
 
-}
+};
 
 class AttData {
     constructor(iAttName, iData) {
@@ -294,7 +301,7 @@ class AttData {
                 this.theRawArray.push(cooked);
                 this.numericCount++;
                 this.valueSet.add(cooked);
-            } else {        //  non-numeric         //  non-numeric strings are strings
+            } else {        //  non-numeric strings are strings
                 this.theRawArray.push(rawDatum);
                 this.nonNumericCount++;
                 this.valueSet.add(rawDatum);

@@ -214,6 +214,7 @@ class Test {
         },
         NN03: {
             id: `NN03`,
+
             name: 'linear regression',
             xType: 'numeric',
             yType: 'numeric',

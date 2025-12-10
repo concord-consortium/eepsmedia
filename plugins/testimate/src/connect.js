@@ -1,3 +1,5 @@
+/* global testimate, Test, data, handlers, codapInterface, localize */
+
 let connect;
 
 /**
@@ -36,7 +38,7 @@ connect = {
         const theMessage = {
             "action": "get",
             "resource": `dataContext[${testimate.state.dataset.name}].itemSearch[*]`
-        }
+        };
 
         const result = await codapInterface.sendRequest(theMessage);
         if (result.success) {
@@ -44,7 +46,7 @@ connect = {
             data.secondaryCleanupNeeded = true;
             out = result.values;   //   array of objects, one of whose items is another "values"
         } else {
-            alert(`Big trouble getting data!`)
+            alert(`Big trouble getting data!`);
         }
         return out;
     },
@@ -60,7 +62,7 @@ connect = {
         const tMessage = {
             action: "get",
             resource: `dataContext[${iName}]`
-        }
+        };
         let result;
 
         try {
@@ -118,7 +120,7 @@ connect = {
 
         this.attributeDragDropSubscriberIndex = codapInterface.on(
             'notify', tResource, testimate.dropManager.handleDragDrop
-        )
+        );
         console.log(`registered for drags and drops. Index ${this.attributeDragDropSubscriberIndex}`);
 
     },
@@ -154,7 +156,7 @@ connect = {
             "values": {
                 "rerandomize": true
             }
-        }
+        };
 
         try {
             const result = await codapInterface.sendRequest(theMessage);
@@ -172,13 +174,13 @@ connect = {
             dataContext: testimate.state.dataset.name,
             xAttributeName: data.yAttData.name,
             yAttributeName: testimate.constants.logisticGroupAttributeName,
-        }
+        };
 
         const theMessage = {
             action: "create",
             resource: "component",
             values: graphObject,
-        }
+        };
 
         try {
             const result = await codapInterface.sendRequest(theMessage);
@@ -192,7 +194,7 @@ connect = {
         const theMessage = {
             action: "delete",
             resource: `component[${testimate.constants.logisticGraphName}]`
-        }
+        };
 
         const result = codapInterface.sendRequest(theMessage);
 
@@ -212,11 +214,11 @@ connect = {
             editable: false,
             formula: theFormula,
             hidden: true
-        }
+        };
         const getInfoMessage = {
             action: "get",
             resource: `dataContext[${testimate.state.dataset.name}]`
-        }
+        };
 
         //  figure out which collection the target attribute is in
 
@@ -230,14 +232,14 @@ connect = {
                         if (attr.name === data.xAttData.name) {
                             useThisCollection = coll.name;
                         }
-                    })
-                })
+                    });
+                });
             } else {
                 alert(`request for dataset info failed in connect.js`);
             }
 
         } catch (msg) {
-            alert(`could not get dataset info for [${testimate.state.dataset.name}] in connect.js...${msg}`)
+            alert(`could not get dataset info for [${testimate.state.dataset.name}] in connect.js...${msg}`);
         }
 
 
@@ -245,7 +247,7 @@ connect = {
             action: "create",
             resource: `dataContext[${testimate.state.dataset.name}].collection[${useThisCollection}].attribute`,
             values: newAttributeInfo
-        }
+        };
 
         try {
             const newAttResult = await codapInterface.sendRequest(newAttMessage);
@@ -273,7 +275,7 @@ connect = {
                 action: "create",
                 resource: "dataContext",
                 values: this.constructEmitDatasetObject(),
-            }
+            };
             try {
                 const result = await codapInterface.sendRequest(theMessage);
                 if (result.success) {
@@ -308,16 +310,6 @@ connect = {
         theStandardAttributes[localize.getString("attributeNames.procedure")] = theConfig.name;
 
         Object.assign(theItemValues, theStandardAttributes);
-/*
-        Object.assign(
-            theItemValues,
-            {
-                outcome: testimate.state.x.name,
-                predictor: (testimate.predictorExists()) ? testimate.state.y.name : "",
-                procedure: theConfig.name,
-            }
-        );
-*/
 
         //  then add "results" values
 
@@ -325,14 +317,14 @@ connect = {
             const translatedAttributeName = localize.getString(`attributeNames.${att}`);
 
             if (theTest.results.hasOwnProperty(att)) {
-                theItemValues[translatedAttributeName] = theTest.results[att]
+                theItemValues[translatedAttributeName] = theTest.results[att];
             } else {    //  not a result? Maybe it's a parameter!!
                 switch (att) {
                     case "sign":
                         theItemValues[translatedAttributeName] = testimate.state.testParams.theSidesOp;
                         break;
                     default:
-                        theItemValues[translatedAttributeName] = testimate.state.testParams[att]
+                        theItemValues[translatedAttributeName] = testimate.state.testParams[att];
                         break;
                 }
 
@@ -344,7 +336,7 @@ connect = {
             action: 'create',
             resource: `dataContext[${testimate.constants.emittedDatasetName}].item`,
             values: theItemValues,       //      sending ONE item
-        }
+        };
         const result = await codapInterface.sendRequest(itemMessage);
         if (result.success) {
             console.log(`success creating item id=${result.itemIDs[0]}`);
@@ -387,31 +379,18 @@ connect = {
                 type: "categorical",
                 description: localize.getString("attributeDescriptions.procedure")
             });
-/*
-            if (testimate.state.testParams.theSidesOp) {
-                theAttrs.push({
-                    name: "sign",
-                    title: localize.getString("attributeNames.sign"),
-                    type: "categorical",
-                    description: localize.getString("attributeDescriptions.sign")
-                });
-            }
-            theAttrs.push({
-                name: "value",
-                title: localize.getString("attributeNames.value"),
-                type: "numeric",
-                precision: 3,
-                description: localize.getString("attributeDescriptions.value")
-            });
-*/
+
+            //  now add the attributes that are being emitted
 
             theConfig.emitted.split(",").forEach(att => {
-                //  const theName = att;
+                //  exception: all are numeric except for "sign"
+                const theAttType = (att === "sign") ? "categorical" : "numeric";
+
                 const theName = localize.getString(`attributeNames.${att}`);
                 const theTitle = localize.getString(`attributeNames.${att}`);
                 const theTip = localize.getString(`attributeDescriptions.${att}`);
                 theAttrs.push({
-                    name: theName, title: theTitle, type: 'numeric',
+                    name: theName, title: theTitle, type: theAttType,
                     description: theTip, precision: 4
                 });
             });
@@ -437,16 +416,16 @@ connect = {
         Object.keys(iExtras).forEach( k => {
             const thisAtt = {
                 name : k
-            }
+            };
             theAtts.push(thisAtt);
             attList.push(k);
-        })
+        });
 
         const theMessage = {
             action : "create",
             resource : `dataContext[${testimate.constants.emittedDatasetName}].collection[${testimate.constants.emittedDatasetName}].attribute`,
             values : theAtts
-        }
+        };
 
         try {
             const result = await codapInterface.sendRequest(theMessage);
@@ -513,7 +492,7 @@ connect = {
         const getTopCasesMessage = {
             "action": "get",
             resource: `dataContext[${data.sourceDatasetInfo.name}].collection[${topCollection.name}].caseFormulaSearch[true]`
-        }
+        };
         try {
             const result = await codapInterface.sendRequest(getTopCasesMessage);
             if (result.success) {
@@ -534,8 +513,6 @@ connect = {
             topLevelCases: [
                 "a", "b",
             ]
-        }
+        };
     }
-
-
-}
+};

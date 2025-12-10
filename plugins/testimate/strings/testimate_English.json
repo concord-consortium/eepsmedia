@@ -47,9 +47,9 @@
     "Nsided" : "•1•-sided",
 
     "attributeNames": {
-      "N": "N",
-      "N1" : "N1",
-      "N2": "N2",
+      "N": "n",
+      "N1" : "n1",
+      "N2": "n2",
       "prop": "prop",
       "prop1": "prop1",
       "prop2": "prop2",

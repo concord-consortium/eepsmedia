@@ -1,3 +1,6 @@
+/* global testimate, data, Test, localize */
+
+
 let ui;
 
 ui = {
@@ -201,7 +204,7 @@ ui = {
         }
 
         return `<input id="sidesButton" type="button" class="chiclet" onclick="handlers.changeTestSides()" 
-                value="${theParams.theSidesOp}">`
+                value="${theParams.theSidesOp}">`;
     },
 
     /**
@@ -214,23 +217,23 @@ ui = {
      */
     focusGroupButtonXHTML: function (iGroup) {
         return `<input id="focusGroupButtonX" class="chiclet" type="button" onclick="handlers.changeFocusGroupX()" 
-                value="${iGroup}">`
+                value="${iGroup}">`;
     },
 
     focusGroupButtonYHTML: function (iGroup) {
         return `<input id="focusGroupButtonY" class="chiclet" type="button" onclick="handlers.changeFocusGroupY()" 
-                value="${iGroup}">`
+                value="${iGroup}">`;
     },
 
     chicletButtonHTML : function(iGuts) {
         return `<input id="chicletButton" class="chiclet" type="button" onclick="handlers.reverseTestSubtraction()" 
-                value="${iGuts}">`
+                value="${iGuts}">`;
     },
 
     sides12ButtonHTML : function(iSides) {
         const buttonTitle = localize.getString("Nsided", iSides);
         return `<input id="sides12Button" class="chiclet" type="button" onclick="handlers.changeSides12()" 
-                value="${buttonTitle}">`
+                value="${buttonTitle}">`;
     },
 
     getFocusGroupName: function () {
@@ -244,7 +247,7 @@ ui = {
         const theLabel = localize.getString("showGraph");
         return `<input id="logisticGraphButton" type="button" 
                 onclick="handlers.showLogisticGraph()" 
-                value="${theLabel}">`
+                value="${theLabel}">`;
     },
 
     /**
@@ -333,7 +336,7 @@ ui = {
                     let chosen = testimate.theTest.testID === theID ? "selected" : "";
                     const menuString = Test.configs[theID].makeMenuString();
                     theMenu += `<option value='${theID}' ${chosen}> ${menuString} </option>`;
-                })
+                });
                 theMenu += `</select>`;
                 out += theMenu;
             }
@@ -351,13 +354,13 @@ ui = {
      * @returns {Promise<string>}
      */
     makeDatasetGuts: async function () {
-        const randomPhrase = ui.hasRandom ? localize.getString('hasRandom') : localize.getString('noRandom');
+        const randomPhrase = data.hasRandom ? localize.getString('hasRandom') : localize.getString('noRandom');
 
         return localize.getString("datasetDIV", testimate.state.dataset.title, data.allCODAPitems.length, randomPhrase);
     },
 
     adjustEmitGuts: function () {
-        const summaryClause = `<summary>${localize.getString("tests.emitSummary")}</summary>`
+        const summaryClause = `<summary>${localize.getString("tests.emitSummary")}</summary>`;
         const singleEmitButtonTitle = localize.getString("emit");
         const randomEmitButtonTitle = localize.getString("emitRR", testimate.state.randomEmitNumber);
         const hierarchyEmitButtonTitle = localize.getString("emitHierarchy", data.topCases.length);
@@ -366,35 +369,7 @@ ui = {
         document.getElementById("emitRandomButton").value = randomEmitButtonTitle;
         document.getElementById("emitHierarchyButton").value = hierarchyEmitButtonTitle;
 
-        /*        const emitClause = `<input type="button" id="emitButton"
-                    value="${emitButtonTitle}"
-                    onclick="handlers.emit()"></input>
-        `;
-                const emitRRButton = `<input type="button"  id="rrEmitButton"
-                    value="${emitRRButtonTitle}"
-                    onclick="handlers.rrEmit(${testimate.state.rrEmitNumber})"></input>`;
-                const emitRRBox =  `<input type="number" id="rrEmitBox" value="${testimate.state.rrEmitNumber}"
-                       onclick="handlers.changeRREmit()" min="0" max = "100" step="1"
-                       class="short_number_field">
-                       <label for="rrEmitBox">times</label>
-                    `;
-
-                let randomClause = "";
-                if (ui.hasRandom) {
-                    randomClause = `${emitRRButton} &emsp; ${emitRRBox}`;
-                }
-
-                let hierarchicalClause = "";
-                if (this.hierarchyInfo && this.hierarchyInfo.nCollections > 1) {
-                    const emitHierarchyButtonTitle = localize.getString("emitHierarchy", this.hierarchyInfo.topLevelCases.length);
-                    const emitHierarchyButton =
-                        `<input type="button"  id="hierarchyEmitButton"
-                            value="${emitHierarchyButtonTitle}"
-                            onclick="handlers.hierarchyEmit()">
-                        </input>`;
-                    hierarchicalClause = emitHierarchyButton;
-                }*/
     },
 
 
-}
+};

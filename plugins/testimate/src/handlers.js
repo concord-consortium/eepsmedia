@@ -1,3 +1,6 @@
+/* global testimate, connect, data, ui */
+
+
 const handlers = {
 
     getPluginState : function() {
@@ -141,7 +144,7 @@ const handlers = {
             let theBoxValue = 0;
             if (g !== lastGroup) {
                 theBoxValue = Number(document.getElementById(`GProp_${g}`).value);
-                const oldPropSum = propSum
+                const oldPropSum = propSum;
                 propSum += theBoxValue;
                 if (propSum > 1) {
                     theBoxValue = 1 - oldPropSum;
@@ -153,7 +156,7 @@ const handlers = {
                 theLastBox.innerHTML = ui.numberToString(theBoxValue);
             }
             testimate.state.testParams.groupProportions[g] = (theBoxValue);
-        })
+        });
         testimate.refreshDataAndTestResults();
     },
 
@@ -251,4 +254,4 @@ const handlers = {
         await testimate.refreshDataAndTestResults();
     },
 
-}
+};

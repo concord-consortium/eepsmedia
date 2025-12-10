@@ -1,4 +1,4 @@
-
+/* global testimate, ui */
 
 testimate.dropManager = {
 
@@ -55,7 +55,7 @@ testimate.dropManager = {
             const theElement = currentElement.closest('#xDIV, #yDIV');
             if (theElement) {
                 if (theElement === ui.xDIV || theElement === ui.yDIV) {
-                    if (this.currentlyOverDIV && (theElement != this.currentlyOverDIV)) {
+                    if (this.currentlyOverDIV && (theElement !== this.currentlyOverDIV)) {
                         this.currentlyOverDIV.classList.replace(`drag-over`, `drag-near`);
                         console.log(`    change drop zone to ${theElement.id}`);
                     }
@@ -82,4 +82,4 @@ testimate.dropManager = {
     },
 
 
-}
+};
