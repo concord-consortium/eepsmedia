@@ -85,13 +85,12 @@ class ANOVA extends Test {
 
     makeResultsString() {
 
-        const N = this.results.N;
-        const F = ui.numberToString(this.results.F);
+        const NString = Test.makeResultValueString("N", this.results.N);
+        const FString = Test.makeResultValueString("F", this.results.F);
         const FCrit = ui.numberToString(this.results.FCrit);
-        const P = (this.results.P < 0.0001) ?
-            `P < 0.0001` :
-            `P = ${ui.numberToString(this.results.P)}`;
-        const conf = ui.numberToString(testimate.state.testParams.conf);
+        const PString = Test.makePString(this.results.P);
+
+        //  const conf = ui.numberToString(testimate.state.testParams.conf);
         const alpha = ui.numberToString(testimate.state.testParams.alpha);
 
         const DSdetails = document.getElementById("DSdetails");
@@ -102,21 +101,21 @@ class ANOVA extends Test {
         let out = "<pre>";
         out += localize.getString("tests.anova.testQuestion",
             testimate.state.x.name, testimate.state.y.name);
-        out += `<br>    N = ${N}, F = ${F}, ${P}<br>`;
+        out += `<br>    ${NString}, ${FString}, ${PString}<br>`;
         out += `<details id="DSdetails" ${DSopen ? "open" : ""}>`;
         out += localize.getString("tests.anova.detailsSummary1");
         out += this.makeDescriptiveTable();
         out += `</details>`;
         out += `<details id="Fdetails" ${Fopen ? "open" : ""}>`;
         out += localize.getString("tests.anova.detailsSummary2");
-        out += this.makeANOVATable();
+        out += this.makeANOVATable(PString);
         out += `<br>    &alpha; = ${alpha}, F* = ${FCrit}`;
         out += `</details>`;
         out += `</pre>`;
         return out;
     }
 
-    makeANOVATable() {
+    makeANOVATable(iPString) {
         const dfT = this.results.dfTreatment;
         const dfE = this.results.dfError;
         const dfTotal = this.results.dfTotal;
@@ -126,9 +125,6 @@ class ANOVA extends Test {
         const MST = ui.numberToString(this.results.MSTreatment, 5);
         const MSE = ui.numberToString(this.results.MSError, 5);
         const F = ui.numberToString(this.results.F);
-        const P = (this.results.P < 0.0001) ?
-            `P < 0.0001` :
-            `P = ${ui.numberToString(this.results.P)}`;
 
         //  const treatmentString = `Treatment<br>(i.e., ${data.yAttData.name})`;
         const treatmentString = `${data.yAttData.name}`;
@@ -136,8 +132,8 @@ class ANOVA extends Test {
         const totalString = localize.getString("total");
 
         let theHTML = "<table class = 'test-results'>";
-        theHTML += "<tr><th>Source</th><th>(SS)</th><th>df</th><th>(MS)</th><th>F</th><th>P</th></tr>";
-        theHTML += `<tr><th>${treatmentString}</th><td>${SSR}</td><td>${dfT}</td><td>${MST}</td><td>${F}</td><td>${P}</td></tr>`;
+        theHTML += `<tr><th>Source</th><th>(SS)</th><th>df</th><th>(MS)</th><th>F</th><th>${localize.getString("attributeNames.P")}</th></tr>`;
+        theHTML += `<tr><th>${treatmentString}</th><td>${SSR}</td><td>${dfT}</td><td>${MST}</td><td>${F}</td><td>${iPString}</td></tr>`;
         theHTML += `<tr><th>${errorString}</th><td>${SSE}</td><td>${dfE}</td><td>${MSE}</td><td></td></tr>`;
         theHTML += `<tr><th>${totalString}</th><td>${SST}</td><td>${dfTotal}</td><td></td><td></td></tr>`;
         theHTML += `</table>`;

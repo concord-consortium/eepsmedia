@@ -33,6 +33,7 @@ class Test {
         theSidesOp: "≠",   //  the sign  todo: eliminate this in favor of using .sides.
         conf: 95,    //  confidence level 1 - alpha
         reversed : false,
+        pooledVariances : false,
         focusGroupX: null,
         focusGroupY: null,
     }
@@ -45,6 +46,7 @@ class Test {
         const theParams = testimate.state.testParams;
 
         theParams.theSidesOp = "≠";
+        console.log(`xxx in Test.makeResultsString()`);
         if (theParams.sides === 1) {
             theParams.theSidesOp = (this.results[this.theConfig.testing] > theParams.value ? ">" : "<");
         }
@@ -57,6 +59,69 @@ class Test {
 
     makeTestDescription(iTestID, includeName) {
         return `this is a default description for a test (${iTestID})`;
+    }
+
+
+    /**
+     * format a p-value and its value, as a suitable string, its name localized,
+     * as in "pWert = 0.023"
+     *
+     * @param p     the floating value of p
+     * @returns {string}
+     */
+    static makePString(p) {
+        const PString = (p < 0.0001) ?
+            `${localize.getString("attributeNames.P")} < 0.0001` :
+            `${localize.getString("attributeNames.P")} = ${ui.numberToString(p)}`;
+        return PString;
+    }
+
+    /**
+     * Format a string of the form "foo = 5.6" given the name (foo) and the value (5.6).
+     * Importantly, the name is an attribute that must be localized.
+     *
+     * @param iName     the name of the attribute
+     * @param iValue    its value
+     * @param iFigs     how many sig figs?
+     * @returns {string}
+     */
+
+    static makeResultValueString(iName, iValue, iFigs = 4) {
+        const theName = localize.getString(`attributeNames.${iName}`);
+        const theValue =  ui.numberToString(iValue, iFigs);
+        return `${theName} = ${theValue}`;
+    }
+
+    static makeConfCIString(iConf, iCImin, iCImax) {
+        return `${ui.numberToString(iConf, 2)}% ${localize.getString("CI")} = [${ui.numberToString(iCImin)}, ${ui.numberToString(iCImax)}]`;
+    }
+
+    /**
+     * Compute the p-value for a t-test with this information
+     *
+     * @param iHyp  the hypothesized value
+     * @param iX    the test statistic (mean, difference, etc)
+     * @param iT    the value of t already computed
+     * @param idf   degrees of freedom
+     * @returns {number}
+     */
+    static computePFromT(iHyp, iX, iT, idf) {
+        const tTail = 1 - jStat.studentt.cdf(Math.abs(iT), idf);
+        return Test.computePFromTail(tTail, iHyp <= iX);
+    }
+
+    static computePFromTail(iTail, iStatAboveHypothesis) {
+        let P = 0;
+        if (testimate.state.testParams.sides === 1) {
+            if (iStatAboveHypothesis) {
+                P = (testimate.state.testParams.theSidesOp === ">") ? iTail : 1 - iTail;
+            } else {
+                P = (testimate.state.testParams.theSidesOp === ">") ? 1 - iTail : iTail;
+            }
+        } else {
+            P = 2 * iTail;
+        }
+        return P;
     }
 
 
@@ -291,20 +356,34 @@ class Test {
             makeMenuString: ( ) => {return TwoSampleP.makeMenuString(`BB02`);},
             fresh: (ix) => { return new TwoSampleP(ix, false)  },
         },
-/*
-        B_02: {
-            id: `B_02`,
-            name: `goodness of fit`,
+        BC01: {         //  compare props using split
+            id: `BC01`,
+            name: `compare proportions (grouped)`,
             xType: 'binary',
-            yType: null,
-            paired: false,
-             groupAxis : "",
-           emitted: `N,P,chisq,df,chisqCrit,alpha`,
-                    paramExceptions: {},
-    makeMenuString: ( ) => {return Goodness.makeMenuString(`B_02`);},
-            fresh: (ix) => { return new Goodness(ix)  },
+            yType: `categorical`,
+            paired: true,
+            groupAxis : "",
+            emitted: `P,prop1,prop2,pDiff,sign,value,N,N1,N2,z,zCrit,conf,CImin,CImax`,
+            testing : 'pDiff',
+            paramExceptions: {},
+            makeMenuString: ( ) => {return TwoSampleP.makeMenuString(`BC01`);},
+            fresh: (ix) => { return new TwoSampleP(ix, true)  },
         },
-*/
+
+        /*
+                B_02: {
+                    id: `B_02`,
+                    name: `goodness of fit`,
+                    xType: 'binary',
+                    yType: null,
+                    paired: false,
+                     groupAxis : "",
+                   emitted: `N,P,chisq,df,chisqCrit,alpha`,
+                            paramExceptions: {},
+            makeMenuString: ( ) => {return Goodness.makeMenuString(`B_02`);},
+                    fresh: (ix) => { return new Goodness(ix)  },
+                },
+        */
         C_01: {
             id: `C_01`,
             name: `goodness of fit`,

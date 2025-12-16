@@ -178,19 +178,21 @@
         "menuString": "mean of •1•",
         "testQuestion": "Is the mean of •1• •2• •3• ?",
         "resultsLine2": "sample mean = •1•, •2•% CI = [•3•, •4•]",
-        "configurationStart": "testing mean"
+        "configurationStart": "testing mean",
+        "sampleMean" : "sample mean"
       },
       "paired": {
-        "menuString": "paired test of (•1• – •2•)",
+        "menuString": "paired test of (•1• - •2•)",
         "testQuestion": "Is the (paired) mean difference of each (•1• – •2•) •3• •4• ?",
         "resultsLine2": "mean paired difference = •1•, •2•% CI = [•3•, •4•]",
-        "configurationStart": "paired test: mean of"
+        "configurationStart": "paired test: mean of",
+        "meanPairedDifference": "mean paired difference"
       },
       "twoSampleT": {
         "menuString1": "difference of means: •1• vs •2•",
         "menuString2": "difference of means: •1• grouped by •2•",
         "testQuestion1": "Is the difference mean(•1•) : group •2• – group •3• •4• ?",
-        "testQuestion2": "Is the difference mean(•1•) – mean(•2•) •3• ?",
+        "testQuestion2": "Is the difference mean(•1•) &ndash; mean(•2•) •3• ?",
         "detailsSummary": "<summary>Difference of means, two-sample <i>t</i> procedure</summary>",
         "configStartPaired" : "testing mean(•1•)",
         "configStart1": "group •1• – group •2•",
@@ -198,7 +200,7 @@
       },
       "regression": {
         "menuString": "linear regression of (•1•) as a function of (•2•)",
-        "testQuestion": "How does (•1•) depend on (•2•) ?",
+        "testQuestion": "How does (•1•) depend on (•2•)?",
         "detailsSummary": "<summary>Regression details</summary>",
         "testingSlope": "testing slope"
       },
@@ -211,7 +213,7 @@
       "oneSampleP": {
         "menuString": "one-sample proportion of •1• = •2•",
         "testQuestion": "Is the proportion of (•1• = •2•) •3• •4• ?",
-        "resultsLine1": "sample proportion = •1•, (•2• out of N = •3•)",
+        "resultsLine1": "sample proportion = •1•, (•2• out of n = •3•)",
         "configurationStart": "testing prop",
         "usingZProc" : "using the z procedure",
         "usingBinomialProc" : "using the exact binomial procedure"

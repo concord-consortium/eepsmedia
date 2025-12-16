@@ -10,6 +10,7 @@ const testimate = {
     compatibleTestIDs : [],
     refreshCount : 0,
     OKtoRespondToCaseChanges : true,
+    iteratingRandom : false,      //  has the user pressed the button that rerandomizes the CODAP data and makes a new test?
 
     initialize: async function () {
         console.log(`initializing...`);
@@ -48,7 +49,6 @@ const testimate = {
             if (this.theTest && this.theTest.testID) {
                 //  remember the test parameters for this type of test
                 testimate.state.testParamDictionary[testimate.theTest.testID] = testimate.state.testParams;
-                this.adjustTestSides();     //  todo: figure out if this is correct; shouldn't we compute the value before we do this?
 
                 data.removeInappropriateCases();    //  depends on the test's parameters being known (paired, numeric, etc.)
                 await this.theTest.updateTestResults();      //  with the right data and the test, we can calculate these results.
@@ -62,16 +62,6 @@ const testimate = {
 
         //  codapInterface.updateInteractiveState(this.state);
         ui.redraw();
-    },
-
-    /**
-     * Something wrong here; check ui.sidesBoxHTML to see where this is apparently computed??   //      todo: attend to sides, >, <, etc!
-     */
-    adjustTestSides : function() {
-        this.state.testParams.theSidesOp = "≠";
-        if (this.state.testParams.sides === 1) {
-            this.state.testParams.theSidesOp = (this.theTest.results[this.theTest.theConfig.testing] > testimate.state.testParams.value ? ">" : "<");
-        }
     },
 
     checkTestConfiguration: function () {
@@ -218,7 +208,7 @@ const testimate = {
 
     constants: {
         pluginName: `testimate`,
-        version: `2025a`,
+        version: `2025b0`,
         dimensions: {height: 555, width: 444},
 
         emittedDatasetName: `tests and estimates`,     //      for receiving emitted test and estimate results
