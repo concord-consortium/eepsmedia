@@ -27,7 +27,7 @@ class Test {
     }
 
     static defaultTestParams = {
-        alpha: 0.05,
+        alpha : 0.05,
         value: 0.0,    //  to be tested against
         sides: 2,
         theSidesOp: "≠",   //  the sign  todo: eliminate this in favor of using .sides.

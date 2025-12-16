@@ -28,6 +28,7 @@ class Independence extends Test {
         this.results.rowTotals = new Array(this.results.rowLabels.length).fill(0);
         this.results.columnTotals = new Array(this.results.columnLabels.length).fill(0);
 
+
         for (let r = 0; r < this.results.rowLabels.length; r++) {
             for (let c = 0; c < this.results.columnLabels.length; c++) {
                 this.results.observed[c][r] = 0;
@@ -47,6 +48,10 @@ class Independence extends Test {
 
         //  calculate expected values and chisquare contributions
         this.results.chisq = 0;
+        let totalCells = 0;
+        let totalZeroCells = 0;
+        let totalCellsFive = 0
+
 
         for (let r = 0; r < this.results.rowLabels.length; r++) {
             for (let c = 0; c < this.results.columnLabels.length; c++) {
@@ -54,9 +59,20 @@ class Independence extends Test {
                 const contrib = (this.results.observed[c][r] - this.results.expected[c][r]) ** 2
                     / this.results.expected[c][r];
                 this.results.chisq += contrib;
+
+                totalCells++;       //  the count of cells
+                if (this.results.observed[c][r] === 0) totalZeroCells++;
+                if (this.results.observed[c][r] <= 5) totalCellsFive++;
             }
         }
 
+        console.log(`independence: ${totalCells} cells, ${totalCellsFive} <= 5, ${totalZeroCells} zero.`);
+        if (totalZeroCells || totalCellsFive) {
+            testimate.warning = localize.getString("tests.independence.warning");
+            if (this.results.rowLabels.length === 2 && this.results.columnLabels.length === 2) {
+                testimate.warning = localize.getString("tests.independence.warningFisher");
+            }
+        }
 
         const theCIparam = 1 - testimate.state.testParams.alpha / testimate.state.testParams.sides;     //  2;   //  the large number
         this.results.df = (this.results.rowLabels.length - 1) * (this.results.columnLabels.length - 1);
@@ -116,9 +132,10 @@ class Independence extends Test {
             const attLabel = (r === 0) ? `<th>${data.xAttData.name} = ` : `<th></th>`;
             let thisRow = `${attLabel}<th>${row}</th>`;
             for (let c = 0; c < this.results.columnLabels.length; c++) {
+                const obs = this.results.observed[c][r];
                 const exp = ui.numberToString(this.results.expected[c][r], 4);
-                const col = this.results.columnLabels[c];   //  the string label
-                thisRow += `<td>${this.results.observed[c][r]}<br>${exp}</td>`;     //  observed value in the cell
+                const warn = obs <= 5 ? 'class = "warning"' : "";
+                thisRow += `<td ${warn}>${obs}<br>${exp}</td>`;     //  observed value in the cell
             }
             thisRow += `</tr>`;
             tableRows += thisRow;

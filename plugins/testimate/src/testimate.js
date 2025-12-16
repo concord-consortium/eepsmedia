@@ -11,6 +11,7 @@ const testimate = {
     refreshCount : 0,
     OKtoRespondToCaseChanges : true,
     iteratingRandom : false,      //  has the user pressed the button that rerandomizes the CODAP data and makes a new test?
+    warning : "",       //  string exists if there is an active warning about test results.
 
     initialize: async function () {
         console.log(`initializing...`);
@@ -30,6 +31,8 @@ const testimate = {
         }
 
         ui.redraw();
+
+        let foo = jStat.hypgeom.cdf( 0, 6, 3, 3 );
     },
 
     /**
@@ -37,16 +40,20 @@ const testimate = {
      */
     refreshDataAndTestResults: async function () {
 
+
         this.refreshCount++;
         console.log(`refresh data: ${this.refreshCount}`);
         if (this.state.dataset) {
             await data.updateData();
             await data.makeXandYArrays(data.allCODAPitems);
+            await data.checkIfSourceDataHasRandomness();
             this.dirtyData = false;     //  todo: do we need this any more?
 
             this.checkTestConfiguration();      //  ensure that this.theTest holds a suitable "Test"
 
             if (this.theTest && this.theTest.testID) {
+                this.warning = "";
+
                 //  remember the test parameters for this type of test
                 testimate.state.testParamDictionary[testimate.theTest.testID] = testimate.state.testParams;
 
@@ -160,6 +167,11 @@ const testimate = {
 
     /**
      * Set the value of the "focusGroup" in the test parameters.
+     *
+     * A 'group' in this case is an identified value of a categorical attribute.
+     * For example, in "gender" you might focus on "Female."
+     * That means that you'll look at proportions of "Female" in tests.
+     *
      * Also, remember it for later.
      *
      * @param iAttData       the attribute data we're looking at
@@ -208,7 +220,7 @@ const testimate = {
 
     constants: {
         pluginName: `testimate`,
-        version: `2025b0`,
+        version: `2025c`,
         dimensions: {height: 555, width: 444},
 
         emittedDatasetName: `tests and estimates`,     //      for receiving emitted test and estimate results

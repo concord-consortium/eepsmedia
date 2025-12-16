@@ -16,7 +16,6 @@ const data = {
     sourceDatasetInfo: {},
 
 
-
     /**
      * called from testimate.refreshDataAndTestResults().
      *
@@ -26,14 +25,11 @@ const data = {
      */
     updateData: async function () {
         if (testimate.state.dataset) {
+            this.sourceDatasetInfo = await connect.getSourceDatasetInfo(testimate.state.dataset.name);
 
             if (this.dirtyData) {
-                this.sourceDatasetInfo = await connect.getSourceDatasetInfo(testimate.state.dataset.name);
-                this.hasRandom = this.sourceDSHasRandomness();
                 this.isGrouped = this.sourceDSisHierarchical();
-
                 this.topCases = (this.isGrouped) ? await connect.retrieveTopLevelCases() : [];
-
                 await this.retrieveAllItemsFromCODAP();
             }
         }
@@ -68,7 +64,7 @@ const data = {
      * @param data
      * @returns {Promise<void>}
      */
-    makeXandYArrays : async function(data) {
+    makeXandYArrays: async function (data) {
         if (testimate.state.x) {
             this.xAttData = new AttData(testimate.state.x.name, data);
             if (!testimate.state.focusGroupDictionary[this.xAttData.name]) {
@@ -79,7 +75,7 @@ const data = {
             this.yAttData = new AttData(testimate.state.y.name, data);
             testimate.state.testParams.focusGroupY = testimate.setFocusGroup(this.yAttData, null);
         }
-        if (this.xAttData)  console.log(`    made xAttData (${this.xAttData.theRawArray.length})`);
+        if (this.xAttData) console.log(`    made xAttData (${this.xAttData.theRawArray.length})`);
     },
 
     removeInappropriateCases: async function () {
@@ -219,24 +215,38 @@ const data = {
     /**
      * Checks if there is randomness in formulas.
      *
-     * todo: change so that we check only the attributes being used in an analysis.
      * @returns {boolean}
      */
-    sourceDSHasRandomness: function () {
+    checkIfSourceDataHasRandomness: async function () {
         let out = false;
+        let xHasFormula = false;
+        let yHasFormula = false;
 
         if (this.sourceDatasetInfo) {
+
+            //  see if ANY attribute has a formula
             this.sourceDatasetInfo.collections.forEach(c => {
                 c.attrs.forEach(a => {
                     const f = a.formula;
                     if (f && f.indexOf("random") > -1) {
                         out = true;
                     }
+                    if (f && testimate.state.x && testimate.state.x.name === a.name) {
+                        xHasFormula = true;
+                    }
+                    if (f && testimate.state.y && testimate.state.y.name === a.name) {
+                        yHasFormula = true;
+                    }
                 });
             });
+
+            //  if x has a formula or y has a formula... (if not, there is no randomness possible, and out is false)
+            if (!xHasFormula && !yHasFormula) {
+                out = false;
+            }
         }
 
-        return out;
+        this.hasRandom = out;
     },
 
     sourceDSisHierarchical: function () {
@@ -246,12 +256,12 @@ const data = {
         return null;
     },
 
-    filterGroupCases: function(theWholeDataset, theFilterValues) {
+    filterGroupCases: function (theWholeDataset, theFilterValues) {
         let out = [];
-        theWholeDataset.forEach( d => {
+        theWholeDataset.forEach(d => {
             const theItem = d.values;
             let matches = true;
-            Object.keys(theFilterValues).forEach(k=>{
+            Object.keys(theFilterValues).forEach(k => {
                 if (theItem[k] !== theFilterValues[k]) {
                     matches = false;
                 }
@@ -330,7 +340,7 @@ class AttData {
     }
 
     isBinary() {
-        return (this.valueSet.size === 2 ||  this.valueSet.size === 1);
+        return (this.valueSet.size === 2 || this.valueSet.size === 1);
     }
 
 

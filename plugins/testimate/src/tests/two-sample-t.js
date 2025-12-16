@@ -68,32 +68,32 @@ class TwoSampleT extends Test {
         this.results.SE1 = this.results.s1 / Math.sqrt(this.results.N1);
         this.results.SE2 = this.results.s2 / Math.sqrt(this.results.N2);
 
-        this.results.df = this.results.N1 + this.results.N2 - 2;
 
         /*
         See https://en.wikipedia.org/wiki/Student%27s_t-test#Independent_two-sample_t-test.
-        I'm using "Equal or unequal sample sizes, similar variance."
-        Maybe we should go one further and use Welch's, which follows
-        in that wikipedia article.
+        "Equal or unequal sample sizes, similar variance." use pooled.
 
-        The following structure has two possibilities, currently both identical because we don't
-        yet know if we ever want to use pooled variances again.
+        Unpooled, use Welch's test, described there also.
+
+        Also, for Welch: https://stataiml.com/posts/welch_t_test_r/
          */
 
         if (testimate.state.testParams.pooledVariances) {
-            const sArg = ((this.results.N1 - 1) * this.results.s1 ** 2 +
+            this.results.df = this.results.N1 + this.results.N2 - 2;
+            const pooledVariance = ((this.results.N1 - 1) * this.results.s1 ** 2 +
                     (this.results.N2 - 1) * this.results.s2 ** 2) /
                 (this.results.N1 + this.results.N2 - 2);
-            this.results.s = Math.sqrt(sArg);       //  pooled SD
+            this.results.s = Math.sqrt(pooledVariance);       //  pooled SD
 
             this.results.SE = this.results.s * Math.sqrt((1 / this.results.N1) + (1 / this.results.N2));
         } else {
-            const sArg = ((this.results.N1 - 1) * this.results.s1 ** 2 +
-                    (this.results.N2 - 1) * this.results.s2 ** 2) /
-                (this.results.N1 + this.results.N2 - 2);
-            this.results.s = Math.sqrt(sArg);       //  pooled SD
+            this.results.SE = Math.sqrt(this.results.s1 ** 2 / this.results.N1 + this.results.s2 ** 2 / this.results.N2);   //  the denominator of t
 
-            this.results.SE = this.results.s * Math.sqrt((1 / this.results.N1) + (1 / this.results.N2));
+            const df1 = this.results.N1 - 1;
+            const df2 = this.results.N2 - 1;
+            const dfDenominator = (this.results.SE1 ** 4) / df1 + (this.results.SE2 ** 4) / df2;
+            const dfNumerator = this.results.SE ** 4;
+            this.results.df = dfNumerator / dfDenominator;
         }
 
         this.results.diff = testimate.state.testParams.reversed ?
@@ -143,7 +143,7 @@ class TwoSampleT extends Test {
 
         const CIString = Test.makeConfCIString(testimate.state.testParams.conf, this.results.CImin, this.results.CImax);
 
-        const dfString = Test.makeResultValueString("df", this.results.df, 3);
+        const dfString = Test.makeResultValueString("df", this.results.df);
 
         const alpha = ui.numberToString(testimate.state.testParams.alpha);
 
@@ -161,10 +161,14 @@ class TwoSampleT extends Test {
                 localize.getString("tests.twoSampleT.testQuestion2", testimate.state.y.name,testimate.state.x.name,comparison) :
                 localize.getString("tests.twoSampleT.testQuestion2", testimate.state.x.name,testimate.state.y.name,comparison) ;
 
+        let poolingString = testimate.state.testParams.pooledVariances ?
+            localize.getString("tests.twoSampleT.pooledVariance") :
+            localize.getString("tests.twoSampleT.unpooledVariance");
+
         let out = "<pre>";
 
         out += `${resultHed} <br>`;
-        out += `<br>    ${NString}, ${diffString}`;
+        out += `<br>    ${NString}, ${diffString}, ${poolingString}`;
         out += `<br>    ${tString}, ${dfString}, &alpha; = ${alpha}, t* = ${tCrit}, (${localize.getString("attributeNames.diff")})* = ${diffCrit}`;
         out += `<br>    ${PString}, ${CIString} `;
 
@@ -198,14 +202,14 @@ class TwoSampleT extends Test {
 
         const groupColHed = this.grouping ? `${testimate.state.y.name}` : group;
         const meanColHead = this.grouping ? `${mean}(${testimate.state.x.name})` : mean;
-        const pooled = localize.getString("pooled");
+        const total = localize.getString("total");
 
         let out = "";
         out += `<table class="test-results"><tr class="headerRow"><th>${groupColHed}</th><th>${localize.getString("attributeNames.N")}</th>`;
         out += `<th>${meanColHead}</th><th>${localize.getString("attributeNames.s")}</th><th>${localize.getString("attributeNames.SE")}</th></tr>`;
         out += `<tr><td>${this.results.group1Name}</td><td>${N1}</td><td>${mean1}</td><td>${s1}</td><td>${SE1}</td></tr>`;
         out += `<tr><td>${this.results.group2Name}</td><td>${N2}</td><td>${mean2}</td><td>${s2}</td><td>${SE2}</td></tr>`;
-        out += `<tr><td>${pooled}</td><td>${N}</td><td>${localize.getString("attributeNames.diff")} = <br>${diff}</td><td>${s}</td><td>${SE}</td></tr>`;
+        out += `<tr><td>${total}</td><td>${N}</td><td>&Delta;&nbsp;=&nbsp;${diff}</td><td>${s}</td><td>${SE}</td></tr>`;
         out += `</table>`;
         return out;
     }
@@ -223,7 +227,6 @@ class TwoSampleT extends Test {
     }
 
     makeConfigureGuts() {
-
         const yComplement = Test.getComplementaryValue(data.yAttData, testimate.state.testParams.focusGroupY);
         const configStart = (this.grouping) ?
             localize.getString("tests.twoSampleT.configStartPaired", testimate.state.x.name) :

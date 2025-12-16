@@ -34,6 +34,7 @@ ui = {
         this.datasetSPAN = document.getElementById(`datasetSPAN`);
         this.testHeaderDIV = document.getElementById(`testHeaderDIV`);
         this.resultsDIV = document.getElementById(`resultsDIV`);
+        this.warningDIV = document.getElementById(`warningDIV`);
         this.configDIV = document.getElementById(`configureDIV`);
 
         this.emitControls = document.getElementById(`emitControls`);
@@ -58,6 +59,11 @@ ui = {
                 this.configDIV.innerHTML = testimate.theTest.makeConfigureGuts();
                 document.getElementById("randomEmitNumberBox").value = testimate.state.randomEmitNumber;
                 this.adjustEmitGuts();
+
+                if (testimate.warning) {
+                    //  set warning guts to warning text
+                    this.warningDIV.innerHTML = testimate.warning;
+                }
             }
         }
 
@@ -79,6 +85,8 @@ ui = {
         document.getElementById('emitSingleGroup').style.display = "block";     //  always show single
         document.getElementById('emitRandomGroup').style.display = (data.hasRandom) ? "block" : "none";
         document.getElementById('emitHierarchicalGroup').style.display = (data.isGrouped) ? "block" : "none";
+
+        this.warningDIV.style.display = (testimate.warning) ? "block" : "none";
 
         //  emit mode visibility
 
