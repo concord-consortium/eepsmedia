@@ -96,7 +96,7 @@ class Independence extends Test {
         let out = "<pre>";
         out += localize.getString("tests.independence.testQuestion",
             testimate.state.y.name, testimate.state.x.name);
-        out += `<br>    ${NString}, ${this.results.columnLabels.length} columns by ${this.results.rowLabels.length} rows, `;
+        out += `<br>    ${NString}, ${localize.getString("tests.fisher.columnsByRows", this.results.columnLabels.length, this.results.rowLabels.length)} `;
         out += `&chi;<sup>2</sup> = ${chisq}, ${PString}`;
         out += `<details id="TIdetails" ${TIopen ? "open" : ""}>`;
         out += localize.getString("tests.independence.detailsSummary", testimate.state.testParams.sides);

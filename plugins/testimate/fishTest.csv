@@ -1,0 +1,9 @@
+outcome,    treatment
+well,   drug
+well,   drug
+well,   drug
+well,   placebo
+sick, drug
+sick, placebo
+sick, placebo
+sick, placebo

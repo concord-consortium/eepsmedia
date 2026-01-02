@@ -408,7 +408,20 @@ class Test {
             makeMenuString: ( ) => {return Independence.makeMenuString(`CC01`);},
             fresh: (ix) => { return new Independence(ix)  },
         },
-/*        CB01: {
+        BB03: {
+            id: `BB03`,
+            name: `Fisher exact`,
+            xType: 'binary',
+            yType: `binary`,
+            paired: true,
+            groupAxis : "",
+            emitted: `N,P`,
+            paramExceptions: {},
+            makeMenuString: ( ) => {return Fisher.makeMenuString(`BB03`);},
+            fresh: (ix) => { return new Fisher(ix)  },
+        },
+/*
+        CB01: {
             id: `CB01`,
             name: `independence`,
             xType: 'categorical',
@@ -432,18 +445,8 @@ class Test {
            makeMenuString: ( ) => {return Test.makeMenuString(`BC01`);},
             fresh: (ix) => { return new Test(ix)  },
         },
-        BB03: {
-            id: `BB03`,
-            name: `independence`,
-            xType: 'binary',
-            yType: `binary`,
-            paired: true,
-               groupAxis : "",
-         emitted: `N,P`,
-             paramExceptions: {},
-           makeMenuString: ( ) => {return Test.makeMenuString(`BB03`);},
-            fresh: (ix) => { return new Test(ix)  },
-        },*/
+
+*/
         NC01: {
             id: `NC01`,
             name: `ANOVA`,
