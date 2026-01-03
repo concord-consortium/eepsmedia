@@ -438,6 +438,29 @@ Although it can be cleaned up and generally improved.
 
 Time to commit and save what we've done!
 
+### A couple fixes
+Of course, we find things that we forgot.
+One is that, in order to display the odds ratio,
+we need to allow for localization.
+because we plan eventually to emit that value, 
+we need to access the name of the attribute in the English
+localization file. 
+Part of the "attributeNames" section appears below.
+
+Eventually we will also need to include attribute descriptions.
+
+And you can see that I also included relative risk.
+
+```javascript
+      "procedure": "procedure",
+      "relativeRisk" : "relativeRisk",
+      "oddsRatio" : "oddsRatio",
+      "SSR": "SSR",
+
+```
+We also refactored some things, particularly in the table display, which you can see above was wonky.
+
+
 ## The configuration box
 
 We think we don't need alpha any more, 

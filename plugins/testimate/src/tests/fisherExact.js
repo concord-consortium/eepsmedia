@@ -77,15 +77,6 @@ class Fisher extends Test {
         this.results.rowTotals = new Array(this.results.rowLabels.length).fill(0);
         this.results.columnTotals = new Array(this.results.columnLabels.length).fill(0);
 
-
-/*
-        for (let r = 0; r < this.results.rowLabels.length; r++) {
-            for (let c = 0; c < this.results.columnLabels.length; c++) {
-                this.results.observed[c][r] = 0;
-            }
-        }
-*/
-
         //  loop over all data
         //  count the observed values in each cell, update row and column totals
 
@@ -97,69 +88,44 @@ class Fisher extends Test {
             this.results.columnTotals[column]++;
         }
 
-        const a = this.results.observed[0][0];
-        const b = this.results.observed[1][0];
-        const c = this.results.observed[0][1];
-        const d = this.results.observed[1][1];
+        this.results.a = this.results.observed[0][0];
+        this.results.b = this.results.observed[1][0];
+        this.results.c = this.results.observed[0][1];
+        this.results.d = this.results.observed[1][1];
+
+        const a = this.results.a;
+        const b = this.results.b;
+        const c = this.results.c;
+        const d = this.results.d;
         console.log(`a, b, c, d: ${a} ${b} ${c} ${d}`);
 
-        const fisherResult = this.fisherExactTest(a, b, c, d);
+        const fisherResult = this.fisherExactTest(a, b, c, d, testimate.state.testParams.theSidesOp);
         console.log(`Fisher result: ${JSON.stringify(fisherResult)}`);
 
         this.results.P = fisherResult.pValue;
         this.results.oddsRatio = fisherResult.oddsRatio;
+        this.results.relativeRisk = fisherResult.relativeRisk;
         this.results.aExpected = this.results.columnTotals[0] * this.results.rowTotals[0] / this.results.N;
-        //  don't understand fisherResult.observed yet!
-
-        //  calculate expected values and chisquare contributions
-
-
-/*
-        this.results.chisq = 0;
-        let totalCells = 0;
-        let totalZeroCells = 0;
-        let totalCellsFive = 0
-
-      for (let r = 0; r < this.results.rowLabels.length; r++) {
-            for (let c = 0; c < this.results.columnLabels.length; c++) {
-                this.results.expected[c][r] = this.results.columnTotals[c] * this.results.rowTotals[r] / this.results.N;
-                const contrib = (this.results.observed[c][r] - this.results.expected[c][r]) ** 2
-                    / this.results.expected[c][r];
-                this.results.chisq += contrib;
-
-                totalCells++;       //  the count of cells
-                if (this.results.observed[c][r] === 0) totalZeroCells++;
-                if (this.results.observed[c][r] <= 5) totalCellsFive++;
-            }
-        }
-
-        console.log(`Fisher: ${totalCells} cells, ${totalCellsFive} <= 5, ${totalZeroCells} zero.`);
-        if (totalZeroCells || totalCellsFive) {
-            testimate.warning = localize.getString("tests.independence.warning");
-            if (this.results.rowLabels.length === 2 && this.results.columnLabels.length === 2) {
-                testimate.warning = localize.getString("tests.independence.warningFisher");
-            }
-        }
-*/
-
-        //  const theCIparam = 1 - testimate.state.testParams.alpha / testimate.state.testParams.sides;     //  2;   //  the large number
         this.results.df = (this.results.rowLabels.length - 1) * (this.results.columnLabels.length - 1);
-        //  this.results.results.chisqCrit = jStat.chisquare.inv(theCIparam, this.results.df);    //
-        //  this.results.P = 1 - jStat.chisquare.cdf(this.results.chisq, this.results.df);
     }
 
     makeResultsString() {
         const NString = Test.makeResultValueString("N", this.results.N);
+        const orString = Test.makeResultValueString("oddsRatio", this.results.oddsRatio, 3);
+        const rrString = Test.makeResultValueString("relativeRisk", this.results.relativeRisk, 3);
         const PString = Test.makePString(this.results.P);
-        const dfString  = Test.makeResultValueString("df", this.results.df, 3);
+//        const dfString  = Test.makeResultValueString("df", this.results.df);
 
         const TIdetails = document.getElementById("TIdetails");
         const TIopen = TIdetails && TIdetails.hasAttribute("open");
 
         let out = "<pre>";
         out += localize.getString("tests.fisher.testQuestion", testimate.state.y.name, testimate.state.x.name);
-        out += `<br>    ${NString}, ${localize.getString("tests.fisher.columnsByRows", this.results.columnLabels.length, this.results.rowLabels.length)} `;
-        out += `<br>    ${PString}, ${dfString}`;
+        out += `<br>    ${NString}, ${rrString}, ${orString}`;
+        out += `<br>    ${PString}`;
+
+        //  table is enclosed in a <details>
+
         out += `<details id="TIdetails" ${TIopen ? "open" : ""}>`;
         out += localize.getString("tests.fisher.detailsSummary", testimate.state.testParams.sides);
         out += this.makeFisherTable();
@@ -171,32 +137,18 @@ class Fisher extends Test {
 
     makeFisherTable() {
 
-        let headerRow = `<tr><td></td><th>${data.yAttData.name} = </th>`;
-        let tableRows = "";
+        let headerRows = `<tr><th></th><th></th><th colspan="2">${data.yAttData.name}</th>`;
+        headerRows += `<tr><th></th><th></th><th>${this.results.columnLabels[0]}</th><th>${this.results.columnLabels[1]}</th></tr>`;
+        //  first row of data
+        let tableRows = "<tr>";
+        tableRows += `<th rowSpan="2">${data.xAttData.name}</th><th>${this.results.rowLabels[0]}</th>`;
+        tableRows += `<td>${this.results.observed[0][0]}</td><td>${this.results.observed[1][0]}</td>  </tr>`;
+        //  second row of data
+        tableRows += "<tr>";
+        tableRows += `<th>${this.results.rowLabels[1]}</th>`;
+        tableRows += `<td>${this.results.observed[0][1]}</td><td>${this.results.observed[1][1]}</td>  </tr>`;
 
-        //  finish the header
-
-        for (let c = 0; c < this.results.columnLabels.length; c++) {
-            const col = this.results.columnLabels[c];   //  the string label
-            headerRow += `<th>${col}</th>`;     //  column value in the header
-        }
-        headerRow += `</tr>`;
-
-        //  now loop over rows, making a column inside each...
-
-        for (let r = 0; r < this.results.rowLabels.length; r++) {
-            const row = this.results.rowLabels[r];      //  the string row label
-            const attLabel = (r === 0) ? `<th>${data.xAttData.name} = ` : `<th></th>`;
-            let thisRow = `${attLabel}<th>${row}</th>`;
-            for (let c = 0; c < this.results.columnLabels.length; c++) {
-                const obs = this.results.observed[c][r];
-                thisRow += `<td>${obs}</td>`;     //  observed value in the cell
-            }
-            thisRow += `</tr>`;
-            tableRows += thisRow;
-        }
-
-        return `<table class="test-results">${headerRow}${tableRows}</table>`;
+        return `<table class="test-results">${headerRows}${tableRows}</table>`;
     }
 
     /**
@@ -227,7 +179,9 @@ class Fisher extends Test {
     }
 
     // Fisher's Exact Test Implementation (from Clause)
-    fisherExactTest(a, b, c, d, alternative = 'two-sided')  {
+    fisherExactTest(a, b, c, d, sidesOp = "≠")  {
+        console.log("Fisher calculation!");
+
         const n = a + b + c + d;
         const rowMargin1 = a + b;
         const colMargin1 = a + c;
@@ -249,6 +203,7 @@ class Fisher extends Test {
 
         // Probability of observed table
         const pObserved = hypgeomProb(a);
+        console.log(`    p(a = ${a}) = ${pObserved}`);
 
         // Range of possible values for 'a'
         const minA = Math.max(0, colMargin1 - (n - rowMargin1));
@@ -256,36 +211,42 @@ class Fisher extends Test {
 
         let pValue;
 
-        if (alternative === 'greater') {
+        if (sidesOp === '>') {
             // Right tail: sum probabilities for a >= observed
             pValue = 0;
             for (let aVal = a; aVal <= maxA; aVal++) {
                 pValue += hypgeomProb(aVal);
+                console.log(`        a = ${aVal}, prob = ${ui.numberToString(prob)}`);
             }
-        } else if (alternative === 'less') {
+        } else if (sidesOp === '<') {
             // Left tail: sum probabilities for a <= observed
             pValue = 0;
             for (let aVal = minA; aVal <= a; aVal++) {
                 pValue += hypgeomProb(aVal);
+                console.log(`        a = ${aVal}, prob = ${ui.numberToString(prob)}`);
             }
         } else {
-            // Two-sided: sum all probabilities <= observed probability
+            // Two-sided: sum all probabilities <= observed probability, sidesOp = '≠'
             pValue = 0;
             for (let aVal = minA; aVal <= maxA; aVal++) {
                 const prob = hypgeomProb(aVal);
                 if (prob <= pObserved + 1e-10) { // Small epsilon for floating point comparison
                     pValue += prob;
+                    console.log(`        a = ${aVal}, prob = ${ui.numberToString(prob)}`);
                 }
             }
         }
 
         // Calculate odds ratio
         const oddsRatio = (a * d) / (b * c);
+        const relativeRisk = a * (b + d) / ((a + c) * b);
 
         return {
             pValue: Math.min(pValue, 1), // Cap at 1 due to floating point errors
             oddsRatio: isFinite(oddsRatio) ? oddsRatio : null,
-            pObserved
+            relativeRisk: isFinite(relativeRisk) ? relativeRisk : null,
+            pObserved : pObserved,
+            aExpected : rowMargin1 * colMargin1 / n
         };
     }
 
