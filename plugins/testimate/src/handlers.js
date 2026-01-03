@@ -20,7 +20,6 @@ const handlers = {
 
     /**
      * User has clicked a button that changes whether a test is one- or two-sided
-     * todo: remove this in favor of changeSides12?
      */
     changeTestSides: function () {
         const theParams = testimate.state.testParams;
@@ -36,15 +35,19 @@ const handlers = {
         testimate.refreshDataAndTestResults();
     },
 
-    //  todo: see if we ever use this any more
-    changeSides12 : function() {
-        const newSides = testimate.state.testParams.sides === 1 ? 2 : 1;
-        if (newSides === 2) {
-            testimate.state.testParams.theSidesOp = "≠";
-        } else {
-            testimate.state.testParams.theSidesOp = "≠";
+    /**
+     * Special case: we change the number of "sides" of a Fisher exact test.
+     */
+    changeSidesFisher : function() {
+        const thisTest = testimate.theTest;
+        if (thisTest.theConfig.name !== "Fisher exact") {
+            alert(`changing sides in Fisher when this is not a Fisher test!`);
+            return;
         }
-        testimate.state.testParams.sides = newSides;
+
+        testimate.state.testParams.sides = testimate.state.testParams.sides === 1 ? 2 : 1;
+
+        thisTest.determineSidesOp();        //  works only with Fisher
         testimate.refreshDataAndTestResults();
     },
 

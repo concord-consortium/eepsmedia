@@ -459,11 +459,169 @@ And you can see that I also included relative risk.
 
 ```
 We also refactored some things, particularly in the table display, which you can see above was wonky.
+A more streamlined display, no longer with `df` looks like this:
+
+![](art/Fisher%20illus%2003.png)
 
 
-## The configuration box
+## The basic configuration box
 
-We think we don't need alpha any more, 
+I think we don't need alpha anymore, 
 but we will need to make the machinery for controlling whether
 we're doing a one- or two-sided test.
+
+Because `independence` doesn't use sides, I'll have to look at other tests
+(such as 2-sample _t_, which I have been working on lately)
+to recall how I have managed this.
+
+One issue is how much to use
+`testimate.state.testParams.theSidesOp` (which has values of "≠", ">", or "<"),
+and how much to use `testimate.state.testParams.sides` (which is 1 or 2).
+
+I already incorporated `sidesOp` into the call to calculate the test results
+in `updateTestResults()`:
+
+```javascript
+        const fisherResult = this.fisherExactTest(a, b, c, d, testimate.state.testParams.theSidesOp);
+```
+Also, this test is not the same as others in that the consequence of making it two-sided or one
+is somewhat different from in other tests (I have discovered).
+Consider data like this: {5 2 15 28}
+
+* One-sided is straightforward, with a = 5, we would add the probabilities for $a ≥ 5$.
+* But two-sided is tricky (and tricky to explain). We add up all the combinations
+where $P ≤ (P(a) ≤ P(a = 5))$. If that makes sense.
+  (and if that's correct; Claude may eb wrong, I'll check...checked out!)
+
+So let's make a crude UI at first.
+We'll look at two-sample _t_, the handlers in `handlers.js`, 
+and the button-making routines in `ui.js` to find what we need. 
+
+### handlers.js
+We make a new method for this special case, which calls back into the
+test itself to figure out the direction of one-sidedness
+
+```javascript
+/**
+ * Special case: we change the number of "sides" of a Fisher exact test.
+ */
+changeSidesFisher : function() {
+  const thisTest = testimate.theTest;
+  if (thisTest.theConfig.name !== "Fisher exact") {
+    alert(`changing sides in Fisher when this is not a Fisher test!`);
+    return;
+  }
+
+  testimate.state.testParams.sides = testimate.state.testParams.sides === 1 ? 2 : 1;
+
+  thisTest.determineSidesOp();        //  works only with Fisher
+  testimate.refreshDataAndTestResults();
+},
+
+```
+
+### fisherExact.js
+Here is that method that we call.
+We need it here in `fisherExact.js` because we need the special values of `a` and its
+expected value in order to determine the sign.
+
+```javascript
+determineSidesOp() {
+  if (testimate.state.testParams.sides === 2) {
+    testimate.state.testParams.theSidesOp = "≠";
+  } else {
+    testimate.state.testParams.theSidesOp =  (this.results.a > this.results.aExpected) ? ">" : "<";
+  }
+}
+```
+
+### ui.js
+
+Here we repurposed an unused sides-changing button, renaming it to serve this specific purpose:
+
+```javascript
+/**
+ * simple button 1-sided, 2-sided.
+ * Used only in Fisher
+ *
+ * @param iSides
+ * @returns {`<input id="sidesFisherButton" class="chiclet" type="button" onclick="handlers.changeSidesFisher()"
+ value="${string}">`}
+ */
+sidesFisherButtonHTML : function(iSides) {
+  const buttonTitle = localize.getString("Nsided", iSides);   //  localized 1-sided or 2-sided
+  return `<input id="sidesFisherButton" class="chiclet" type="button" onclick="handlers.changeSidesFisher()" 
+                value="${buttonTitle}">`;
+},
+
+
+```
+
+## The improved configuration box
+
+The mechanics above work fine, and the results match the online calculator.
+But the display doesn't explain what's going on to the user;
+it doesn't even tell the user whether a one-sided test is using > or <!
+
+Let's put new strings somewhere to clarify things. 
+Because the logic depends on the value in the upper-left corner of the 2x2 table, 
+let's highlight that somehow and use it in the explanation.
+
+This text can go in the main area, the table area, or in the configuration area.
+We'll try it in the main area and see how it works.
+
+The text might be something like,
+
+> The p-value is the chance that a randomized dataset would yield a count
+> of (well, drug) cases greater than or equal to our value of 5.
+
+or 
+
+> The probability that a randomized dataset would yield a count of 
+> (well, drug) is 5, like our dataset,
+> is 0.0686. The p-value is the chance that a randomized dataset
+> would have a count whose probability is less than or equal to that value.
+
+Which is quite a mouthful, especially for the two-sided case!
+
+Maybe this goes in the "table" area, which is supposed to explain the details of the test.
+
+Suppose we go there and write something like:
+
+> The null hypothesis is that there is no association between outcome and treatment.
+> The upper-left cell, where (outcome = well) and (treatment = drug),
+> has 5 cases. Let's call that cell "a".
+> If the null hypothesis were true, 
+> the probability of getting 5 cases in that cell would be 0.0686.
+> 
+> The p-value is the probability that, under the null hypothesis,
+> we would get 5 or more cases in a. 
+
+or
+
+> The p-value is the probabilty that, under the null hypothesis,
+> we would get a number of cases in a whose probabilty 
+> is 0.0686 or fewer.
+
+There are still questions a user might have, 
+but perhaps we could explain those at greater length in the testimate guide. 
+
+Anyway, that worked OK, but testing reveals how important it will be to be able to choose 
+which value gets priority. (Right now,
+whatever occurs first gets the top or left spot.)
+Current state:
+
+![](art/Fisher%20illus%204.png)
+
+## Configuration 3: choosing focus values, etc.
+
+There will be a challenge here distinguishing between two choices:
+
+1. If there are two values (e.g., `drug` and `placebo`), the user gets to choose
+which one is in the "focus" spot: top of left in the table,
+and the important result in calculations, that is, which one is in the numerator, which ine is `a`.
+2. If there are more than two values (`frosh`, `soph`, `junior`, `senior`),
+the user gets to choose which one we focus on, leaving the others to be `not frosh` or whatever.
+
+For now, we'll just implement (1), assuming that the attribute is truly binary.
 

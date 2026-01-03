@@ -107,11 +107,11 @@ class Paired extends Test {
             `${testimate.state.y.name} – ${testimate.state.x.name}` :
             `${testimate.state.x.name} – ${testimate.state.y.name}` ;
 
-        const chiclet = ui.chicletButtonHTML(chicletGuts);
+        const reverseSubChiclet = ui.reverseSubtractionChicletButtonHTML(chicletGuts);
         const sides = ui.sidesChicletButtonHTML(testimate.state.testParams.sides);
         const value = ui.valueBoxHTML(testimate.state.testParams.value);
         const conf = ui.confBoxHTML(testimate.state.testParams.conf);
-        let theHTML = `${configStart}<br>&emsp;${chiclet} ${sides} ${value}<br>&emsp;</br>${conf}`;
+        let theHTML = `${configStart}<br>&emsp;${reverseSubChiclet} ${sides} ${value}<br>&emsp;</br>${conf}`;
 
         return theHTML;
     }

@@ -236,11 +236,11 @@ class TwoSampleT extends Test {
             `mean(${testimate.state.y.name}) – mean(${testimate.state.x.name})` :
             `mean(${testimate.state.x.name}) – mean(${testimate.state.y.name})` ;
 
-        const chiclet = ui.chicletButtonHTML(chicletGuts);
+        const reverseSubChiclet = ui.reverseSubtractionChicletButtonHTML(chicletGuts);
 
         const configContinues = (this.grouping) ?
             `[${ui.focusGroupButtonYHTML(testimate.state.testParams.focusGroupY)}]–[${yComplement}]` :
-            chiclet ;
+            reverseSubChiclet ;
 
 
         const sides = ui.sidesChicletButtonHTML(testimate.state.testParams.sides);

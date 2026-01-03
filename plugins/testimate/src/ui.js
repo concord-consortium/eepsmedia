@@ -228,14 +228,22 @@ ui = {
                 value="${iGroup}">`;
     },
 
-    chicletButtonHTML : function(iGuts) {
+    reverseSubtractionChicletButtonHTML : function(iGuts) {
         return `<input id="chicletButton" class="chiclet" type="button" onclick="handlers.reverseTestSubtraction()" 
                 value="${iGuts}">`;
     },
 
-    sides12ButtonHTML : function(iSides) {
-        const buttonTitle = localize.getString("Nsided", iSides);
-        return `<input id="sides12Button" class="chiclet" type="button" onclick="handlers.changeSides12()" 
+    /**
+     * simple button 1-sided, 2-sided.
+     * Used only in Fisher
+     *
+     * @param iSides
+     * @returns {`<input id="sidesFisherButton" class="chiclet" type="button" onclick="handlers.changeSidesFisher()"
+                value="${string}">`}
+     */
+    sidesFisherButtonHTML : function(iSides) {
+        const buttonTitle = localize.getString("Nsided", iSides);   //  localized 1-sided or 2-sided
+        return `<input id="sidesFisherButton" class="chiclet" type="button" onclick="handlers.changeSidesFisher()" 
                 value="${buttonTitle}">`;
     },
 

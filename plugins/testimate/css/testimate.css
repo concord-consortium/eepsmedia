@@ -32,6 +32,7 @@ pre {
 
 details {
     padding-top: 1em;
+    word-wrap: anywhere;
 }
 
 summary {

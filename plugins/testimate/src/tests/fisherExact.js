@@ -100,9 +100,11 @@ class Fisher extends Test {
         console.log(`a, b, c, d: ${a} ${b} ${c} ${d}`);
 
         const fisherResult = this.fisherExactTest(a, b, c, d, testimate.state.testParams.theSidesOp);
+        //  const fisherResult = this.fisherExactTest(a, b, c, d, ">");
         console.log(`Fisher result: ${JSON.stringify(fisherResult)}`);
 
         this.results.P = fisherResult.pValue;
+        this.results.pObserved = fisherResult.pObserved;
         this.results.oddsRatio = fisherResult.oddsRatio;
         this.results.relativeRisk = fisherResult.relativeRisk;
         this.results.aExpected = this.results.columnTotals[0] * this.results.rowTotals[0] / this.results.N;
@@ -116,8 +118,10 @@ class Fisher extends Test {
         const PString = Test.makePString(this.results.P);
 //        const dfString  = Test.makeResultValueString("df", this.results.df);
 
-        const TIdetails = document.getElementById("TIdetails");
-        const TIopen = TIdetails && TIdetails.hasAttribute("open");
+        const FisherDetails = document.getElementById("FisherDetails");
+        const detailsOpen = FisherDetails && FisherDetails.hasAttribute("open");
+        const table2by2Details = document.getElementById("Table2by2Details");
+        const table2by2Open = table2by2Details && table2by2Details.hasAttribute("open");
 
         let out = "<pre>";
         out += localize.getString("tests.fisher.testQuestion", testimate.state.y.name, testimate.state.x.name);
@@ -126,9 +130,35 @@ class Fisher extends Test {
 
         //  table is enclosed in a <details>
 
-        out += `<details id="TIdetails" ${TIopen ? "open" : ""}>`;
-        out += localize.getString("tests.fisher.detailsSummary", testimate.state.testParams.sides);
+        out += `<details id="table2by2Details" ${table2by2Open ? "open" : ""}>`;
+        out += localize.getString("tests.fisher.tableDetailsSummary", testimate.state.x.name, testimate.state.y.name);
         out += this.makeFisherTable();
+        out += `</details>`;
+
+        out += `<details id="FisherDetails" ${detailsOpen ? "open" : ""}>`;
+        out += localize.getString("tests.fisher.detailsSummary", testimate.state.testParams.sides);
+
+        //  out += `<div id="fisherExplanation>`;
+
+        out += "<ul>";
+        out += localize.getString("tests.fisher.nullStatement1", testimate.state.x.name, testimate.state.y.name);
+        out += localize.getString("tests.fisher.upperLeft",
+            testimate.state.x.name, testimate.state.y.name,
+            this.results.rowLabels[0], this.results.columnLabels[0],
+            this.results.a
+            );
+        out += localize.getString("tests.fisher.aProbability", this.results.a, ui.numberToString(this.results.pObserved));
+        out += localize.getString("tests.fisher.aExpected", ui.numberToString(this.results.aExpected));
+        if (testimate.state.testParams.sides === 2) {
+            out += localize.getString("tests.fisher.twoSidedDef", ui.numberToString(this.results.pObserved));
+        } else {
+            out += localize.getString("tests.fisher.oneSidedDef",
+                this.results.a,
+                (testimate.state.testParams.theSidesOp === ">") ? "more" : "fewer");
+        }
+        out += "</ul>";
+        //  out += `</div>`;
+
         out += `</details>`;
 
         out += `</pre>`;
@@ -151,6 +181,14 @@ class Fisher extends Test {
         return `<table class="test-results">${headerRows}${tableRows}</table>`;
     }
 
+    determineSidesOp() {
+        if (testimate.state.testParams.sides === 2) {
+            testimate.state.testParams.theSidesOp = "≠";
+        } else {
+            testimate.state.testParams.theSidesOp =  (this.results.a > this.results.aExpected) ? ">" : "<";
+        }
+    }
+
     /**
      * NB: This is a _static_ method, so you can't use `this`!
      * @returns {string}    what shows up in a menu.
@@ -161,11 +199,11 @@ class Fisher extends Test {
     }
 
     makeConfigureGuts() {
-        const start = localize.getString("tests.independence.configurationStart",
+        const start = localize.getString("tests.fisher.configurationStart",
             testimate.state.y.name, testimate.state.x.name);
 
-        const alpha = ui.alphaBoxHTML(testimate.state.testParams.alpha);
-        let theHTML = `${start}:<br>&emsp;${alpha}`;        //      used to have "&emsp;${sides12Button}"
+        const sidesButtonHTML = ui.sidesFisherButtonHTML(testimate.state.testParams.sides);
+        let theHTML = `${start}:<br>&emsp;${sidesButtonHTML}`;        //      used to have "&emsp;${sides12Button}"
 
         return theHTML;
     }
@@ -215,14 +253,16 @@ class Fisher extends Test {
             // Right tail: sum probabilities for a >= observed
             pValue = 0;
             for (let aVal = a; aVal <= maxA; aVal++) {
-                pValue += hypgeomProb(aVal);
+                const prob = hypgeomProb(aVal);
+                pValue += prob;
                 console.log(`        a = ${aVal}, prob = ${ui.numberToString(prob)}`);
             }
         } else if (sidesOp === '<') {
             // Left tail: sum probabilities for a <= observed
             pValue = 0;
             for (let aVal = minA; aVal <= a; aVal++) {
-                pValue += hypgeomProb(aVal);
+                const prob = hypgeomProb(aVal);
+                pValue += prob;
                 console.log(`        a = ${aVal}, prob = ${ui.numberToString(prob)}`);
             }
         } else {

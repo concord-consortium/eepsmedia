@@ -144,6 +144,11 @@ class Test {
             console.log(`finding tests for ${X && X.name} (${xType}) vs ${Y && Y.name} (${yType}) `);
             let passed = "";
 
+            /*
+            todo: reconsider this pairable thing.
+            (a) just having the same length is not sufficient!
+            (b) maybe it doesn't matter; just do the computation if both values are not missing.
+             */
             const pairable = X && Y && X.theRawArray &&
                 Y.theRawArray &&
                 (data.xAttData.theRawArray.length === data.yAttData.theRawArray.length);
@@ -415,7 +420,7 @@ class Test {
             yType: `binary`,
             paired: true,
             groupAxis : "",
-            emitted: `N,P`,
+            emitted: `N,P,relativeRisk,oddsRatio,sign,sides,a,aExpected,pObserved`,
             paramExceptions: {},
             makeMenuString: ( ) => {return Fisher.makeMenuString(`BB03`);},
             fresh: (ix) => { return new Fisher(ix)  },
