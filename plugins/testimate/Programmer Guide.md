@@ -335,6 +335,25 @@ in the dictionary:
         testimate.state.testParamDictionary[testimate.theTest.testID] = testimate.state.testParams;
 ... etc ...
 ```
+### Two-sample t, special note
+
+In late 2025, at the suggestion of Lee Creighton, we changed from the ordinary
+Student's _t_ test to Welch's, which does not assume nearly-equal variances.
+
+Information about Welch is easily found in Wikipedia,
+but I found this description of the calculation clearer:
+https://stataiml.com/posts/welch_t_test_r/.
+
+Lee provided these pithy quotes:
+
+* “Our advice: Never use the pooled t procedures if you have software that will carry out [the unpooled version]." 
+(Starnes Tabor Yates and Moore _The Practice of Statistics_ 5th edition, p. 650)
+*  “So when should you use pooled-t methods rather than two-sample t methods? Never. What never? Well, hardly ever.”
+(Deveaux and Velleman’s _Intro Stats_, p. 464)
+* ”[The pooled t] was widely used in the past, but has fallen into some disfavor 
+because it is quite sensitive to departures from the assumption of equal population variances…In general, 
+the two-sample t procedure is a better choice than the pooled t test.”
+(Peck Olsen and Devore _Introduction to Statistics & Data Analysis_ 5th edition, p. 572)
 
 
 ## Communicating with CODAP
@@ -394,7 +413,7 @@ That method, `data.updateData()`, contains these lines:
 
 ```javascript
 this.sourceDatasetInfo = await connect.getSourceDatasetInfo(testimate.state.dataset.name);
-this.hasRandom = this.sourceDSHasRandomness();
+this.hasRandom = this.checkIfSourceDataHasRandomness();
 this.isGrouped = this.sourceDSisHierarchical();
 
 this.topCases = (this.isGrouped) ? await connect.retrieveTopLevelCases() : [];

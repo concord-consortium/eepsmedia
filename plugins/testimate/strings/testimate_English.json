@@ -194,9 +194,10 @@
         "testQuestion1": "Is the difference mean(•1•) : group •2• – group •3• •4• ?",
         "testQuestion2": "Is the difference mean(•1•) &ndash; mean(•2•) •3• ?",
         "detailsSummary": "<summary>Difference of means, two-sample <i>t</i> procedure</summary>",
-        "configStartPaired" : "testing mean(•1•)",
+        "configStartPaired" : "testing difference of means",
         "configStart1": "group •1• – group •2•",
-        "configStartUnpaired": "unpaired test"
+        "pooledVariance": "pooled variance",
+        "unpooledVariance" : "unpooled variance"
       },
       "regression": {
         "menuString": "linear regression of (•1•) as a function of (•2•)",
@@ -236,7 +237,9 @@
         "menuString": "test independence of •1• from •2•",
         "testQuestion": "Are (•1•) and (•2•) independent?",
         "detailsSummary": "<summary>Testing independence, •1•-sided &chi;<sup>2</sup> procedure</summary>",
-        "configurationStart": "configure test for independence of (•1•) from (•2•)"
+        "configurationStart": "configure test for independence of (•1•) from (•2•)",
+        "warning" : "⚠️😱&emsp;WARNING!<br>Some cells have too few cases for this test! Consider combining rows and/or columns.",
+        "warningFisher" : "⚠️😱&emsp;WARNING!<br>Some cells have too few cases! Consider combining rows and/or columns ... or using a Fisher exact test"
       },
       "anova" : {
         "menuString": "ANOVA: •1• by •2•",
