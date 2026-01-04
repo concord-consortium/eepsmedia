@@ -23,31 +23,8 @@ const handlers = {
      */
     changeTestSides: function () {
         const theParams = testimate.state.testParams;
-        const newSides = theParams.sides === 1 ? 2 : 1;
-
-        theParams.theSidesOp = "≠";
-        if (newSides === 1) {
-            const testStat = testimate.theTest.results[testimate.theTest.theConfig.testing];  //  testing what? mean? xbar? diff? slope?
-            theParams.theSidesOp = (testStat > theParams.value ? ">" : "<");
-        }
-        testimate.state.testParams.sides = newSides;
-
-        testimate.refreshDataAndTestResults();
-    },
-
-    /**
-     * Special case: we change the number of "sides" of a Fisher exact test.
-     */
-    changeSidesFisher : function() {
-        const thisTest = testimate.theTest;
-        if (thisTest.theConfig.name !== "Fisher exact") {
-            alert(`changing sides in Fisher when this is not a Fisher test!`);
-            return;
-        }
-
-        testimate.state.testParams.sides = testimate.state.testParams.sides === 1 ? 2 : 1;
-
-        thisTest.determineSidesOp();        //  works only with Fisher
+        theParams.sides = theParams.sides === 1 ? 2 : 1;
+        testimate.determineSidesOp();
         testimate.refreshDataAndTestResults();
     },
 
@@ -122,6 +99,7 @@ const handlers = {
         const valueSet = [...data.xAttData.valueSet];
         const nextValue = this.nextValueInList(valueSet, initialGroup);
         testimate.state.testParams.focusGroupX = testimate.setFocusGroup(data.xAttData, nextValue);
+        testimate.determineSidesOp();   //      the data are there already; this changes the sign, which changes pValue
         testimate.refreshDataAndTestResults();
     },
 
@@ -130,6 +108,7 @@ const handlers = {
         const valueSet = [...data.yAttData.valueSet];
         const nextValue = this.nextValueInList(valueSet, initialGroup);
         testimate.state.testParams.focusGroupY = testimate.setFocusGroup(data.yAttData, nextValue);
+        testimate.determineSidesOp();
         testimate.refreshDataAndTestResults();
     },
 

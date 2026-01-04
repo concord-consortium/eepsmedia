@@ -625,3 +625,10 @@ the user gets to choose which one we focus on, leaving the others to be `not fro
 
 For now, we'll just implement (1), assuming that the attribute is truly binary.
 
+A possible text:
+
+> Focus this [1-sided] analysis on:\
+> [treatment] = [drug] and\
+> [outcome] = [well]
+
+

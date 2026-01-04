@@ -20,10 +20,7 @@ const testimate = {
         await localize.initialize(localize.figureOutLanguage('en'));
         ui.initialize();
 
-        // this.state = codapInterface.getInteractiveState();    //  get stored state if any
         this.state = {...this.constants.defaultState, ...this.state};   //  have all fields in default!
-        //  codapInterface.updateInteractiveState(this.state);    //
-
 
         if (this.state.dataset) {
             data.dirtyData = true;
@@ -31,18 +28,15 @@ const testimate = {
         }
 
         ui.redraw();
-
-        let foo = jStat.hypgeom.cdf( 0, 6, 3, 3 );
     },
 
     /**
      * This makes sure data is current
      */
     refreshDataAndTestResults: async function () {
-
-
         this.refreshCount++;
         console.log(`refresh data: ${this.refreshCount}`);
+
         if (this.state.dataset) {
             await data.updateData();
             await data.makeXandYArrays(data.allCODAPitems);
@@ -164,6 +158,31 @@ const testimate = {
         }
     },
 
+    /**
+     * Determine which opearator to use in "sides": "≠", "<", or ">".
+     *
+     * Depends on what test we're running.
+     */
+
+    determineSidesOp() {
+        const theParams = testimate.state.testParams;
+
+        if (this.theTest.theConfig.name === "Fisher exact") {
+            if (theParams.sides === 2) {
+                theParams.theSidesOp = "≠";
+            } else {
+                theParams.theSidesOp = (this.theTest.results.a > this.theTest.results.aExpected) ? ">" : "<";
+                console.log(`op is ${theParams.theSidesOp} because ${this.theTest.results.a } ${theParams.theSidesOp} ${this.theTest.results.aExpected}`);
+            }
+        } else {
+            if (theParams.sides === 2) {
+                theParams.theSidesOp = "≠";
+            } else  {
+                const testStat = testimate.theTest.results[testimate.theTest.theConfig.testing];  //  testing what? mean? xbar? diff? slope?
+                theParams.theSidesOp = (testStat > theParams.value ? ">" : "<");
+            }
+        }
+    },
 
     /**
      * Set the value of the "focusGroup" in the test parameters.
@@ -190,6 +209,17 @@ const testimate = {
         this.state.focusGroupDictionary[theName] = theValue;
 
         return theValue;
+    },
+
+    putFocusFirst: function(iValues, iFocus) {
+        let out = [iFocus ? iFocus : iValues[0]];
+        iValues.forEach(v => {
+            if (v !== iFocus) {
+                out.push(v);
+            }
+        });
+
+        return out;
     },
 
     setLogisticFocusGroup: async function(iAttData, iValue) {
@@ -220,7 +250,7 @@ const testimate = {
 
     constants: {
         pluginName: `testimate`,
-        version: `2026a`,
+        version: `2026b`,
         dimensions: {height: 555, width: 444},
 
         emittedDatasetName: `tests and estimates`,     //      for receiving emitted test and estimate results

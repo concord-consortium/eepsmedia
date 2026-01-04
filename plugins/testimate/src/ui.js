@@ -243,7 +243,7 @@ ui = {
      */
     sidesFisherButtonHTML : function(iSides) {
         const buttonTitle = localize.getString("Nsided", iSides);   //  localized 1-sided or 2-sided
-        return `<input id="sidesFisherButton" class="chiclet" type="button" onclick="handlers.changeSidesFisher()" 
+        return `<input id="sidesFisherButton" class="chiclet" type="button" onclick="handlers.changeTestSides()" 
                 value="${buttonTitle}">`;
     },
 

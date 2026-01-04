@@ -1,50 +1,6 @@
 /**
  *
- * About jStat.hypgeom.cdf
- *
- *   cdf: function cdf(x, N, m, n) {
- *     // Hypergeometric CDF.
- *
- *     // This algorithm is due to Prof. Thomas S. Ferguson, <tom@math.ucla.edu>,
- *     // and comes from his hypergeometric test calculator at
- *     // <http://www.math.ucla.edu/~tom/distributions/Hypergeometric.html>.
- *
- *     // x = number of successes drawn
- *     // N = population size
- *     // m = number of successes in population
- *     // n = number of items drawn from population
- *
- *     Then, from https://www.statology.org/fishers-exact-test/
- *
- *      Consider a table:
- *                  group 1 group 2     row total
- *      category 1  a       b           a + b
- *      category 2  c       d           c + d
- *      col total   a + c   b + d       n
- *
- *      So here, "group 1" is our sample (drawn without replacement),
- *      and therefore "group 2" is the rest of the population. Right??
- *
- *     The one-tailed p value for Fisher’s Exact Test is calculated as:
- *
- *      p = (a+b)!(c+d)!(a+c)!(b+d)! / (a!b!c!d!n!)
- *
- *      This produces the same p value as the CDF of the hypergeometric distribution with the following parameters:
- *
- *      population size = n
- *      population “successes” = a+b
- *      sample size = a + c
- *      sample “successes” = a
- *
- *      So that suggests that
- *
- *      pValue = jStat.hypgeom.cdf(a, n, a + b, a + c)
- *
- *      for example, in a population of 6 with 3 successes, we draw 3 and get 0 successes.
- *      a = 0, b = 3, c = 3, d = 0
- *      p = (3/6) x (2/5) * (1/4) = 1/20, matches hypgeom calculator (https://www.statology.org/fishers-exact-test-calculator/) = 0.05
- *
- *      using jStat, jStat.hypgeom.cdf(0, 6, 3, 3). Answer is 0.05, correct.
+*   Class to compute and display results from the Fisher exact test of independence in a 2x2 case.
  */
 
 /* global testimate, data, Test, jStat, ui, localize */
@@ -57,7 +13,6 @@ class Fisher extends Test {
         this.results.rowLabels = [];
         this.results.columnLabels = [];
         this.results.observed = null;
-        this.results.expected = null;
 
         //  testimate.state.testParams.sides = 1;
     }
@@ -71,8 +26,12 @@ class Fisher extends Test {
         this.results.rowLabels = [...data.xAttData.valueSet];       //  x is vertical, row labels
         this.results.columnLabels = [...data.yAttData.valueSet];
 
+        //  change rowLabels and columnLabels to begin with focusGroupX and focusGroupY.
+
+        this.results.rowLabels = testimate.putFocusFirst(this.results.rowLabels, testimate.state.testParams.focusGroupX);
+        this.results.columnLabels = testimate.putFocusFirst(this.results.columnLabels, testimate.state.testParams.focusGroupY);
+
         this.results.observed = this.makeZeroMatrix(this.results.columnLabels.length, this.results.rowLabels.length);
-        this.results.expected = this.makeZeroMatrix(this.results.columnLabels.length, this.results.rowLabels.length);
 
         this.results.rowTotals = new Array(this.results.rowLabels.length).fill(0);
         this.results.columnTotals = new Array(this.results.columnLabels.length).fill(0);
@@ -99,6 +58,8 @@ class Fisher extends Test {
         const d = this.results.d;
         console.log(`a, b, c, d: ${a} ${b} ${c} ${d}`);
 
+        if (!testimate.iteratingRandom) {testimate.determineSidesOp();}
+
         const fisherResult = this.fisherExactTest(a, b, c, d, testimate.state.testParams.theSidesOp);
         //  const fisherResult = this.fisherExactTest(a, b, c, d, ">");
         console.log(`Fisher result: ${JSON.stringify(fisherResult)}`);
@@ -120,7 +81,7 @@ class Fisher extends Test {
 
         const FisherDetails = document.getElementById("FisherDetails");
         const detailsOpen = FisherDetails && FisherDetails.hasAttribute("open");
-        const table2by2Details = document.getElementById("Table2by2Details");
+        const table2by2Details = document.getElementById("table2by2Details");
         const table2by2Open = table2by2Details && table2by2Details.hasAttribute("open");
 
         let out = "<pre>";
@@ -181,13 +142,6 @@ class Fisher extends Test {
         return `<table class="test-results">${headerRows}${tableRows}</table>`;
     }
 
-    determineSidesOp() {
-        if (testimate.state.testParams.sides === 2) {
-            testimate.state.testParams.theSidesOp = "≠";
-        } else {
-            testimate.state.testParams.theSidesOp =  (this.results.a > this.results.aExpected) ? ">" : "<";
-        }
-    }
 
     /**
      * NB: This is a _static_ method, so you can't use `this`!
@@ -199,11 +153,19 @@ class Fisher extends Test {
     }
 
     makeConfigureGuts() {
-        const start = localize.getString("tests.fisher.configurationStart",
-            testimate.state.y.name, testimate.state.x.name);
-
+        const xName = testimate.state.x.name;
+        const yName = testimate.state.y.name;
+        const start = localize.getString("tests.fisher.configurationStart", xName, yName);
+        const groupXbutton = ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX);
+        const groupYbutton = ui.focusGroupButtonYHTML(testimate.state.testParams.focusGroupY);
         const sidesButtonHTML = ui.sidesFisherButtonHTML(testimate.state.testParams.sides);
-        let theHTML = `${start}:<br>&emsp;${sidesButtonHTML}`;        //      used to have "&emsp;${sides12Button}"
+
+        const focusThis = localize.getString("tests.fisher.configureFocusThis");
+        const analysisOn = localize.getString("tests.fisher.configureAnalysisOn");
+
+        let theHTML = `${start}:<br>&emsp;${focusThis} ${sidesButtonHTML} ${analysisOn}`;        //      used to have "&emsp;${sides12Button}"
+        theHTML += `<br>&emsp;${xName} = ${groupXbutton} ${localize.getString("and")}`;
+        theHTML += `<br>&emsp;${yName} = ${groupYbutton}`;
 
         return theHTML;
     }
