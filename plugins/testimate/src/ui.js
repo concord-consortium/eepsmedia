@@ -132,9 +132,9 @@ ui = {
         const xTrash = document.getElementById(`xTrashAttButton`);
         const yTrash = document.getElementById(`yTrashAttButton`);
 
-        if (testimate.state.x && testimate.state.x.name) {
-            this.xNameDIV.textContent = testimate.state.x.name;
-            xType.value = testimate.state.dataTypes[testimate.state.x.name] === 'numeric' ? '123' : 'abc';
+        if (data.xName()) {
+            this.xNameDIV.textContent = data.xName();
+            xType.value = testimate.state.dataTypes[data.xName()] === 'numeric' ? '123' : 'abc';
             xTrash.style.display = "inline";
             xType.style.display = "inline";
             this.xDIV.className = "drag-none";
@@ -144,9 +144,9 @@ ui = {
             xType.style.display = "none";
             this.xDIV.className = "drag-empty";
         }
-        if (testimate.state.y && testimate.state.y.name) {
-            this.yNameDIV.textContent = testimate.state.y.name;
-            yType.value = testimate.state.dataTypes[testimate.state.y.name] === 'numeric' ? '123' : 'abc';
+        if (data.yName()) {
+            this.yNameDIV.textContent = data.yName();
+            yType.value = testimate.state.dataTypes[data.yName()] === 'numeric' ? '123' : 'abc';
             yTrash.style.display = "inline";
             yType.style.display = "inline";
             this.yDIV.className = "drag-none";
@@ -251,7 +251,7 @@ ui = {
         if (!testimate.state.testParams.focusGroup) {
             testimate.setFocusGroup(data.xAttData, null);
         }
-        return testimate.state.focusGroupDictionary[data.xAttData.name];
+        return testimate.state.focusGroupDictionary[data.xName()];
     },
 
     makeLogisticGraphButtonHTML: function (iGroup) {

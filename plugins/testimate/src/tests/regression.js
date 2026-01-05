@@ -69,7 +69,6 @@ class Regression extends Test {
     }
 
     makeResultsString() {
-        //  const testDesc = `mean of ${testimate.state.x.name}`;
         const NString = Test.makeResultValueString("N", this.results.N);
         const tString = Test.makeResultValueString("t", this.results.t, 3);
         const PString = Test.makePString(this.results.P);
@@ -90,8 +89,8 @@ class Regression extends Test {
 
         const theSign = intercept >= 0 ? "+" : '-';
 
-        const X = testimate.state.x.name;
-        const Y = testimate.state.y.name;
+        const X = data.xName();
+        const Y = data.yName();
 
         const DSdetails = document.getElementById("DSdetails");
         const DSopen = DSdetails && DSdetails.hasAttribute("open");
@@ -126,8 +125,7 @@ class Regression extends Test {
      * @returns {string}    what shows up in a menu.
      */
     static makeMenuString() {
-        return localize.getString("tests.regression.menuString",testimate.state.x.name, testimate.state.y.name);
-        //  return `linear regression of (${testimate.state.x.name}) as a function of (${testimate.state.y.name})`;
+        return localize.getString("tests.regression.menuString",data.xName(), data.yName());
     }
 
     makeConfigureGuts() {

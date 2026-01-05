@@ -255,7 +255,7 @@ changing data or the "value," which could change the sign of _t_.
 When you perform a test, you do so using a number of parameters such as
 the alpha level and whether it is 1- or 2-sided.
 These parameters vary from test to test.
-They are used extensively in each test's `updatetestResults()` method.
+They are used extensively in each test's `updateTestResults()` method.
 
 The current parameters are an object stored in a `state` field,
 that is, `testimate.state.testParams`. 
@@ -560,14 +560,14 @@ that we might use for grouping.
 The constructor also counts up missing and numeric values,
 and stuffs the clean values into `this.rawArray`. 
 
-Later, we process `this.rawArray` into `this.theArray`, which is what gets used 
+Later, we process `this.theRawArray` into `this.theArray`, which is what gets used 
 when calculating test results. 
 
 ### Making AttData.theArray
 
 In the "update" method, `testimate.refreshDataAndTestResults()`,
 we call `data.makeXandYArrays(data.allCODAPitems)`.
-This is where `data.XattDataX` and `data.YattData` get created.
+This is where `data.xAttData` and `data.yAttData` get created.
 After some additional processing, we call `data.removeInappropriateCases()`.
 This method populates the `.theArray` members of the x and y `AttData`s.
 

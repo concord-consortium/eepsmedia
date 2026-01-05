@@ -11,8 +11,8 @@ class TwoSampleP extends Test {
 
         //  get a default "group" -- the value we count as "success" for proportions
         if (!testimate.restoringFromSave || !testimate.state.testParams.focusGroupX) {
-            testimate.state.testParams.focusGroupX = testimate.state.focusGroupDictionary[data.xAttData.name];
-            testimate.state.testParams.focusGroupY = testimate.state.focusGroupDictionary[data.yAttData.name];
+            testimate.state.testParams.focusGroupX = testimate.state.focusGroupDictionary[data.xName()];
+            testimate.state.testParams.focusGroupY = testimate.state.focusGroupDictionary[data.yName()];
         }
         testimate.state.testParams.value
             = testimate.state.valueDictionary[this.testID]
@@ -41,8 +41,8 @@ class TwoSampleP extends Test {
             [A, B] = Test.splitByGroup(A, B, this.results.labelA);
 
         } else {
-            this.results.labelA = data.xAttData.name;
-            this.results.labelB = data.yAttData.name;
+            this.results.labelA = data.xName();
+            this.results.labelB = data.yName();
 
             //  const theAValues = [...data.xAttData.valueSet];
             this.results.successValueA = testimate.state.testParams.focusGroupX;        //      this.results.successValueA || theAValues[0];   //  the default principal group = the first, by default
@@ -112,7 +112,6 @@ class TwoSampleP extends Test {
     makeResultsString() {
         const NString = Test.makeResultValueString("N", this.results.N);
 
-        const   diff = ui.numberToString(this.results.pDiff, 3);
         const SEinterval = ui.numberToString(this.results.SEinterval);
 
         const PString = Test.makePString(this.results.P);
@@ -129,8 +128,8 @@ class TwoSampleP extends Test {
         const DSopen = DSdetails && DSdetails.hasAttribute("open");
         let out = "<pre>";
 
-        const groupingPhrase = `(${testimate.state.x.name} = ${this.results.successValueA}): ${this.results.labelA} - ${this.results.labelB}`;
-        const nonGroupingPhrase = `(${testimate.state.x.name} = ${this.results.successValueA}) - (${testimate.state.y.name} = ${this.results.successValueB})`;
+        const groupingPhrase = `(${data.xName()} = ${this.results.successValueA}): ${this.results.labelA} - ${this.results.labelB}`;
+        const nonGroupingPhrase = `(${data.xName()} = ${this.results.successValueA}) - (${data.yName()} = ${this.results.successValueB})`;
 
         const comparison = `${testimate.state.testParams.theSidesOp} ${testimate.state.testParams.value}`;
         const resultHed = (this.grouping) ?
@@ -165,9 +164,9 @@ class TwoSampleP extends Test {
         const p2 = ui.numberToString(this.results.prop2);
         const prop = ui.numberToString(this.results.prop);
 
-        const groupColHead = this.grouping ?  `${data.yAttData.name}` : localize.getString("group");
+        const groupColHead = this.grouping ?  `${data.yName()}` : localize.getString("group");
         const propColHead = this.grouping ?
-            `${localize.getString("proportion")}<br>${data.xAttData.name} = ${this.results.successValueA}` :
+            `${localize.getString("proportion")}<br>${data.xName()} = ${this.results.successValueA}` :
             `${localize.getString("proportion")}`;
         const pooled = localize.getString("pooled");
 
@@ -194,9 +193,9 @@ class TwoSampleP extends Test {
      */
     static makeMenuString(iID) {
         if (iID === `BB02`) {
-            return localize.getString("tests.twoSampleP.menuString1", testimate.state.x.name, testimate.state.y.name);
+            return localize.getString("tests.twoSampleP.menuString1", data.xName(), data.yName());
         } else {
-            return localize.getString("tests.twoSampleP.menuString2", testimate.state.x.name, testimate.state.y.name);
+            return localize.getString("tests.twoSampleP.menuString2", data.xName(), data.yName());  //
         }
     }
 
@@ -204,8 +203,8 @@ class TwoSampleP extends Test {
         const configStart = localize.getString("tests.twoSampleP.configStart");
 
         const intro = (this.grouping) ?
-            `${configStart}: <br>&emsp;(${testimate.state.x.name} = ${ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX)} ) : ${ui.focusGroupButtonYHTML(testimate.state.testParams.focusGroupY)} - ${this.results.labelB}` :
-            `${configStart}: <br>&emsp;(${testimate.state.x.name} = ${ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX)}) - (${testimate.state.y.name} = ${ui.focusGroupButtonYHTML(testimate.state.testParams.focusGroupY)}) `;
+            `${configStart}: <br>&emsp;(${data.xName()} = ${ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX)} ) : ${ui.focusGroupButtonYHTML(testimate.state.testParams.focusGroupY)} - ${this.results.labelB}` :
+            `${configStart}: <br>&emsp;(${data.xName()} = ${ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX)}) - (${data.yName()} = ${ui.focusGroupButtonYHTML(testimate.state.testParams.focusGroupY)}) `;
         const sides = ui.sidesChicletButtonHTML(testimate.state.testParams.sides);
         const value = ui.valueBoxHTML(testimate.state.testParams.value, 0.0, 1.0, 0.05);
         const conf = ui.confBoxHTML(testimate.state.testParams.conf);

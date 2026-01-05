@@ -11,7 +11,7 @@ class OneSampleP extends Test {
 
         //  get a default "group" -- the value we count as "success" for proportions
         if (!testimate.restoringFromSave || !testimate.state.testParams.focusGroupX) {
-            testimate.state.testParams.focusGroupX = testimate.state.focusGroupDictionary[data.xAttData.name];
+            testimate.state.testParams.focusGroupX = testimate.state.focusGroupDictionary[data.xName()];
             /*
                   testimate.state.testParams.value
                       = testimate.state.valueDictionary[this.testID]
@@ -109,7 +109,7 @@ class OneSampleP extends Test {
 
         const testQuestion = localize.getString(
             "tests.oneSampleP.testQuestion",
-            data.xAttData.name, testimate.state.testParams.focusGroupX, sidesOp, value
+            data.xName(), testimate.state.testParams.focusGroupX, sidesOp, value
         );
         const r1 = localize.getString(
             "tests.oneSampleP.resultsLine1", prop, successes, N
@@ -140,7 +140,7 @@ class OneSampleP extends Test {
     }
 
     makeTestDescription(iTestID, includeName) {
-        return `mean of ${testimate.state.x.name}`;
+        return `mean of ${data.xName()}`;
     }
 
     /**
@@ -148,13 +148,13 @@ class OneSampleP extends Test {
      * @returns {string}    what shows up in a menu.
      */
     static makeMenuString() {
-        if(!testimate.state.focusGroupDictionary[data.xAttData.name]) {
+        if(!testimate.state.focusGroupDictionary[data.xName()]) {
             testimate.setFocusGroup(data.xAttData, null);
         }
-        const rememberedGroup = testimate.state.focusGroupDictionary[data.xAttData.name];
+        const rememberedGroup = testimate.state.focusGroupDictionary[data.xName()];
 
         return localize.getString("tests.oneSampleP.menuString",
-            testimate.state.x.name, rememberedGroup);
+            data.xName(), rememberedGroup);
     }
 
     makeConfigureGuts() {
@@ -164,7 +164,7 @@ class OneSampleP extends Test {
         const value = ui.valueBoxHTML(testimate.state.testParams.value, 0.0, 1.0, 0.05);
         const conf = ui.confBoxHTML(testimate.state.testParams.conf);
         const group = ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX);
-        let theHTML = `${configStart}(${data.xAttData.name} = ${group}) ${sides} ${value} ${conf}`;
+        let theHTML = `${configStart}(${data.xName()} = ${group}) ${sides} ${value} ${conf}`;
 
         return theHTML;
     }

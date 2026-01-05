@@ -88,7 +88,7 @@ class Fisher extends Test {
         const yAlternative = Test.getComplementaryValue(data.yAttData, testimate.state.testParams.focusGroupY);
 
         let out = "<pre>";
-        out += localize.getString("tests.fisher.testQuestion", testimate.state.y.name, testimate.state.x.name);
+        out += localize.getString("tests.fisher.testQuestion", data.yName(), data.xName());
         out += `<br>    ${NString}, ${rrString}, ${orString}`;
         out += `<br>    ${PString} (${localize.getString("Nsided", testimate.state.testParams.sides)})`;
 
@@ -136,11 +136,11 @@ class Fisher extends Test {
         const pct10 = ui.numberToString(100 * count10 / (count10 + count11), 3) + "%";
         const pct11 = ui.numberToString(100 * count11 / (count10 + count11), 3) + "%";
 
-        let headerRows = `<tr><th>${localize.getString("tests.fisher.columnPctLabel")}</th><th></th><th colspan="2">${data.yAttData.name}</th>`;
+        let headerRows = `<tr><th>${localize.getString("tests.fisher.columnPctLabel")}</th><th></th><th colspan="2">${data.yName()}</th>`;
         headerRows += `<tr><th></th><th></th><th>${this.results.columnLabels[0]}</th><th>${this.results.columnLabels[1]}</th></tr>`;
         //  first row of data
         let tableRows = "<tr>";
-        tableRows += `<th rowSpan="2">${data.xAttData.name}</th><th>${this.results.rowLabels[0]}</th>`;
+        tableRows += `<th rowSpan="2">${data.xName()}</th><th>${this.results.rowLabels[0]}</th>`;
         tableRows += `<td>${count00}<br>${pct00}</td><td>${count10}<br>${pct10}</td>  </tr>`;
         //  second row of data
         tableRows += "<tr>";
@@ -157,12 +157,12 @@ class Fisher extends Test {
      */
     static makeMenuString() {
         return localize.getString("tests.fisher.menuString",    //  see? fisher!
-            testimate.state.y.name, testimate.state.x.name);
+            data.yName(),data.xName());
     }
 
     makeConfigureGuts() {
-        const xName = testimate.state.x.name;
-        const yName = testimate.state.y.name;
+        const xName = data.xName();
+        const yName = data.yName();
 
         const sidesButtonHTML = ui.sidesFisherButtonHTML(testimate.state.testParams.sides);
 

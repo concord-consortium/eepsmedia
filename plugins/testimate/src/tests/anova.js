@@ -100,7 +100,7 @@ class ANOVA extends Test {
 
         let out = "<pre>";
         out += localize.getString("tests.anova.testQuestion",
-            testimate.state.x.name, testimate.state.y.name);
+            data.xName(), data.yName());
         out += `<br>    ${NString}, ${FString}, ${PString}<br>`;
         out += `<details id="DSdetails" ${DSopen ? "open" : ""}>`;
         out += localize.getString("tests.anova.detailsSummary1");
@@ -126,8 +126,8 @@ class ANOVA extends Test {
         const MSE = ui.numberToString(this.results.MSError, 5);
         const F = ui.numberToString(this.results.F);
 
-        //  const treatmentString = `Treatment<br>(i.e., ${data.yAttData.name})`;
-        const treatmentString = `${data.yAttData.name}`;
+        //  const treatmentString = `Treatment<br>(i.e., ${data.yName()})`;
+        const treatmentString = `${data.yName()}`;
         const errorString = localize.getString("error");
         const totalString = localize.getString("total");
 
@@ -142,9 +142,9 @@ class ANOVA extends Test {
     }
 
     makeDescriptiveTable() {
-        const meanOfX = localize.getString("tests.anova.meanOfX",testimate.state.x.name);
+        const meanOfX = localize.getString("tests.anova.meanOfX",data.xName());
 
-        let nameRow = `<tr><th>${data.yAttData.name} &rarr;</th>`;
+        let nameRow = `<tr><th>${data.yName()} &rarr;</th>`;
         let countRow = `<tr><td>${localize.getString("count")}</td>`;
         let meanRow = `<tr><td>${meanOfX}</td>`;
 
@@ -163,7 +163,7 @@ class ANOVA extends Test {
     }
 
     makeTestDescription() {
-        return `ANOVA: ${testimate.state.x.name} by ${testimate.state.y.name}`;
+        return `ANOVA: ${data.xName()} by ${data.yName()}`;
     }
 
     /**
@@ -172,13 +172,12 @@ class ANOVA extends Test {
      */
     static makeMenuString() {
         return localize.getString("tests.anova.menuString",
-            testimate.state.x.name, testimate.state.y.name);
-        //  return `ANOVA: ${testimate.state.x.name} by ${testimate.state.y.name}`;
+            data.xName(), data.yName());
     }
 
     makeConfigureGuts() {
         const configStart = localize.getString("tests.anova.configStart",
-            testimate.state.x.name, testimate.state.y.name);
+            data.xName(), data.yName());
         const conf = ui.confBoxHTML(testimate.state.testParams.conf);
         let theHTML = `${configStart}:<br>&emsp;${conf}`;
 

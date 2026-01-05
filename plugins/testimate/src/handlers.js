@@ -122,7 +122,7 @@ const handlers = {
      * @param iXY
      */
     changeCN: function (iXY) {
-        const aName = (iXY === 'x') ? testimate.state.x.name : testimate.state.y.name;
+        const aName = (iXY === 'x') ? data.xName() : data.yName();
         const newType = (testimate.state.dataTypes[aName] === 'numeric' ? 'categorical' : 'numeric');
         testimate.state.dataTypes[aName] = newType;
         testimate.refreshDataAndTestResults();

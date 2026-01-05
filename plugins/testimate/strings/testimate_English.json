@@ -207,7 +207,7 @@
         "menuString2": "difference of means: •1• grouped by •2•",
         "testQuestion1": "Is the difference mean(•1•) : group •2• – group •3• •4• ?",
         "testQuestion2": "Is the difference mean(•1•) &ndash; mean(•2•) •3• ?",
-        "detailsSummary": "<summary>Difference of means, two-sample <i>t</i> procedure</summary>",
+        "detailsSummary": "<summary>Difference of means, Welch two-sample <i>t</i> procedure</summary>",
         "configStartPaired" : "testing difference of means",
         "configStart1": "group •1• – group •2•",
         "pooledVariance": "pooled variance",

@@ -64,7 +64,7 @@ class Correlation extends Test {
     }
 
     makeResultsString() {
-        //  const testDesc = `mean of ${testimate.state.x.name}`;
+
         const NString = Test.makeResultValueString("N", this.results.N);
         const tString = Test.makeResultValueString("t", this.results.t, 3);
         const dfString = Test.makeResultValueString("df", this.results.df);
@@ -78,14 +78,14 @@ class Correlation extends Test {
         const tCrit = ui.numberToString(this.results.tCrit, 3);
         const alpha = ui.numberToString(testimate.state.testParams.alpha);
 
-        const X = testimate.state.x.name;
-        const Y = testimate.state.y.name;
+        const xName = data.xName();
+        const yName = data.yName();
 
         let out = "<pre>";
 
         //  out += `How does (${X}) depend on (${Y})?`
         out += localize.getString("tests.correlation.testQuestion",
-            X, Y, testimate.state.testParams.theSidesOp, testimate.state.testParams.value.toString());
+            xName, yName, testimate.state.testParams.theSidesOp, testimate.state.testParams.value.toString());
         out += `<br>    &rho; = ${rho}, r<sup>2</sup> = ${rsq}, ${NString}`;  //  note reversal!
         out += `<br>    ${tString}, ${PString}`;
         out += `<br>    ${CIString}`;
@@ -100,7 +100,7 @@ class Correlation extends Test {
      * @returns {string}    what shows up in a menu.
      */
     static makeMenuString() {
-        return localize.getString("tests.correlation.menuString",testimate.state.x.name, testimate.state.y.name);
+        return localize.getString("tests.correlation.menuString",data.xName(), data.yName());
     }
 
     makeConfigureGuts() {

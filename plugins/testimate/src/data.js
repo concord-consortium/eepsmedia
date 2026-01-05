@@ -19,20 +19,28 @@ const data = {
     /**
      * called from testimate.refreshDataAndTestResults().
      *
-     * Before we write anything on the screen, we ensure that the data we have is current.
+     * Before we write anything on the screen, we ensure that we have the current data.
      *
      * @returns {Promise<void>}
      */
     updateData: async function () {
         if (testimate.state.dataset) {
             this.sourceDatasetInfo = await connect.getSourceDatasetInfo(testimate.state.dataset.name);
+            this.isGrouped = this.sourceDSisHierarchical();
 
             if (this.dirtyData) {
-                this.isGrouped = this.sourceDSisHierarchical();
                 this.topCases = (this.isGrouped) ? await connect.retrieveTopLevelCases() : [];
-                await this.retrieveAllItemsFromCODAP();
+                this.allCODAPitems = await this.retrieveAllItemsFromCODAP();
             }
         }
+    },
+
+    xName: function() {
+        return (this.xAttData && this.xAttData.name);
+    },
+
+    yName: function() {
+        return this.yAttData && this.yAttData.name;
     },
 
     /*      Coping with getting data from CODAP and responding to changes       */
@@ -45,17 +53,22 @@ const data = {
      * @returns {Promise<void>}
      */
     retrieveAllItemsFromCODAP: async function () {
+        let theItems = [];
+
         if (testimate.state.x) {
-            this.allCODAPitems = await connect.getAllItems();      //  this.dataset is now set as array of objects (result.values)
+            theItems = await connect.getAllItems();      //  this.dataset is now set as array of objects (result.values)
             if (this.allCODAPitems) {
             }
         } else {
             console.log(`no x variable`);
         }
+        return theItems;
     },
 
     /**
      * Construct xAttData and yAttData, the INTERNAL Arrays of the data in each attribute.
+     *
+     * Called from testimate.js (refreshDataAndTestResults()) just after updateData()
      *
      * Those constructors evaluate the values to tell whether the attributes are numeric or categorical.
      * We need this in order to figure out which tests are appropriate,
@@ -73,6 +86,7 @@ const data = {
             this.yAttData = new AttData(testimate.state.y.name, data);
             testimate.state.testParams.focusGroupY = testimate.setFocusGroup(this.yAttData, null);
         }
+
         if (this.xAttData) console.log(`    made xAttData (${this.xAttData.theRawArray.length})`);
     },
 
@@ -83,11 +97,11 @@ const data = {
         let newXArray = [];
         let newYArray = [];
 
-        const paired = Test.configs[testimate.theTest.testID].paired;
+        const paired = Test.configs[testimate.theTest.testID].paired;   //  are we doing a paired test?
 
 
         //  make intermediate arrays that have only the right type of values (e.g., numeric)
-        //  same length as original!
+        //  same length as original! (filled in with nulls)
 
         let xIntermediate = [];
         if (this.xAttData) {
@@ -174,6 +188,7 @@ const data = {
                 //      includes attribute name change!
                 const theUpdatedAtts = iMessage.values.result.attrs;    //  array of objects, form {name : newName...}
                 theUpdatedAtts.forEach(att => {
+                    //  todo: see if we can do this using xAttData and yAttData
                     if (testimate.state.x && att.id === testimate.state.x.id) {    //  saved id of x-attribute
                         const oldName = testimate.state.x.name;
                         console.log(`att X changing from ${oldName} to ${att.title}`);
@@ -195,6 +210,8 @@ const data = {
 
             case `deleteAttributes`:
             case `createAttributes`:
+            case "moveAttribute":
+            case "createCollection":
                 data.dirtyData = true;
                 if (testimate.OKtoRespondToCaseChanges) await testimate.refreshDataAndTestResults();
                 break;
@@ -286,8 +303,10 @@ const data = {
 };
 
 class AttData {
-    constructor(iAttName, iData) {
+    constructor(iAtt, iData) {
+        const iAttName = iAtt.name;
         this.name = iAttName ? iAttName : null;
+        this.title = iAtt.title;
         this.theRawArray = [];
         this.theArray = [];     //  stays empty in constructor
         this.valueSet = new Set();

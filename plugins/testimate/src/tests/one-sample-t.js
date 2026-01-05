@@ -61,7 +61,7 @@ class OneSampleT extends Test {
         const value = ui.numberToString(testimate.state.testParams.value);
 
         const testQuestion = localize.getString("tests.oneSampleT.testQuestion",
-            data.xAttData.name, testimate.state.testParams.theSidesOp, value);
+            data.xName(), testimate.state.testParams.theSidesOp, value);
 
         let out = "<pre>";
 
@@ -76,7 +76,7 @@ class OneSampleT extends Test {
     }
 
     makeTestDescription( ) {
-        return `mean of ${testimate.state.x.name}`;
+        return `mean of ${data.xName()}`;
     }
 
     /**
@@ -84,9 +84,7 @@ class OneSampleT extends Test {
      * @returns {string}    what shows up in a menu.
      */
     static makeMenuString() {
-        return localize.getString("tests.oneSampleT.menuString", testimate.state.x.name);
-
-        //  return `one-sample t mean of ${testimate.state.x.name}`;
+        return localize.getString("tests.oneSampleT.menuString", data.xName());
     }
 
     makeConfigureGuts() {
@@ -95,7 +93,7 @@ class OneSampleT extends Test {
         const sides = ui.sidesChicletButtonHTML(testimate.state.testParams.sides);
         const value = ui.valueBoxHTML(testimate.state.testParams.value);
         const conf = ui.confBoxHTML(testimate.state.testParams.conf);
-        let theHTML = `${configStart}(${data.xAttData.name}) ${sides} ${value} ${conf}`;
+        let theHTML = `${configStart}(${data.xName()}) ${sides} ${value} ${conf}`;
 
         return theHTML;
     }

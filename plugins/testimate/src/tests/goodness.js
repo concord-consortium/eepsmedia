@@ -64,9 +64,10 @@ class Goodness extends Test {
         const GFopen = GFdetails && GFdetails.hasAttribute("open");
 
         let out = "<pre>";
-        out += localize.getString("tests.goodness.testQuestion", data.xAttData.name);
-        //  out += `Are the proportions of ${data.xAttData.name} as hypothesized?`;
-        out += `<br>    ${NString}, ${this.results.groupNames.length} ${localize.getString("groups")}, &chi;<sup>2</sup> = ${chisq}, ${PString}`;
+        out += localize.getString("tests.goodness.testQuestion", data.xName());
+        //  out += `Are the proportions of ${data.xName()} as hypothesized?`;
+        out += `<br>    ${NString}, ${this.results.groupNames.length} ${localize.getString("groups")}, &chi;<sup>2</sup> = ${chisq}`;
+        out += `<br>    ${PString}`;
         out += `<details id="GFdetails" ${GFopen ? "open" : ""}>`;
         out += localize.getString("tests.goodness.detailsSummary1", testimate.state.testParams.sides);
         out += this.makeGoodnessTable();
@@ -79,7 +80,7 @@ class Goodness extends Test {
 
     makeGoodnessTable() {
 
-        let nameRow = `<tr><th>${data.xAttData.name} =</th>`;
+        let nameRow = `<tr><th>${data.xName()} =</th>`;
         let observedRow = `<tr><td>${localize.getString("observed")}</td>`;
         let expectedRow = `<tr><td>${localize.getString("expected")}</td>`;
 
@@ -141,7 +142,7 @@ class Goodness extends Test {
     }
 
     makeTestDescription( ) {
-        return `goodness of fit: ${testimate.state.x.name}`;
+        return `goodness of fit: ${data.xName()}`;
     }
 
     /**
@@ -149,8 +150,7 @@ class Goodness extends Test {
      * @returns {string}    what shows up in a menu.
      */
     static makeMenuString() {
-        return localize.getString("tests.goodness.menuString",testimate.state.x.name);
-        //  return `goodness of fit for ${testimate.state.x.name}`;
+        return localize.getString("tests.goodness.menuString",data.xName());
     }
 
     makeConfigureGuts() {
@@ -160,7 +160,7 @@ class Goodness extends Test {
         theHTML += `<br>&emsp;${alpha}`;      //  used to have `&emsp;${sides12Button}`
 
 
-        let nameRow =   `<tr><th>${testimate.state.x.name} &rarr; </th>`;
+        let nameRow =   `<tr><th>${data.xName()} &rarr; </th>`;
         let valueRow =   `<tr><th>${this.equalExpectationsButton()}</th>`;
 
         //  is the goodness-of-fit configuration details element [extant and] open?

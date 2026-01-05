@@ -41,7 +41,7 @@ const testimate = {
             await data.updateData();
             await data.makeXandYArrays(data.allCODAPitems);
             await data.checkIfSourceDataHasRandomness();
-            this.dirtyData = false;     //  todo: do we need this any more?
+            this.dirtyData = false;     //  set in data when CODAP sends notifications of changes. todo: do we need this any more?
 
             this.checkTestConfiguration();      //  ensure that this.theTest holds a suitable "Test"
 
@@ -113,8 +113,6 @@ const testimate = {
             await this.setDataset(iDataset);
         } else if (this.state.dataset.name !== iDataset.name) {
             await this.setDataset(iDataset);
-            this.setX(this.emptyAttribute);
-            this.setY(this.emptyAttribute);    //  change of dataset, remove attributes
         }
 
         if (theElement === ui.xDIV) {
@@ -133,8 +131,8 @@ const testimate = {
     setDataset: async function (iDataset) {
         this.state.dataset = iDataset;
         this.state.testID = null;
-        this.setX(this.emptyAttribute);
-        this.setY(this.emptyAttribute);    //  change of dataset, remove attributes
+        this.state.x = null;
+        this.state.y = null;    //  change of dataset, remove attributes
 
         await connect.registerForCaseChanges(this.state.dataset.name);
         await connect.registerForAttributeEvents(this.state.dataset.name);
@@ -144,7 +142,7 @@ const testimate = {
 
     setX: async function (iAtt) {
         data.dirtyData = true;
-        this.state.x = iAtt;        //  the whole attribute structure, with .name and .title
+        this.state.x = iAtt;        //  the dropped attribute structure, with .id, .name, and .title
         console.log(`set X to ${iAtt.name}`);
     },
 
@@ -159,7 +157,7 @@ const testimate = {
     },
 
     /**
-     * Determine which opearator to use in "sides": "≠", "<", or ">".
+     * Determine which operator to use in "sides": "≠", "<", or ">".
      *
      * Depends on what test we're running.
      */
@@ -239,13 +237,7 @@ const testimate = {
     },
 
     predictorExists: function () {
-        return (testimate.state.y && testimate.state.y.name);
-    },
-
-    emptyAttribute: {
-        name: "",
-        title: "",
-        id: -1,
+        return (data.yName());
     },
 
     constants: {

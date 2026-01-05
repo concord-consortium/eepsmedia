@@ -22,7 +22,7 @@ class TwoSampleT extends Test {
         this.results.groupNames = [];       //  names of the two groups to be displayed (depends on grouping)
         if (this.grouping) {
             if (!testimate.restoringFromSave || !testimate.state.testParams.focusGroupY) {
-                testimate.state.testParams.focusGroupY = testimate.state.focusGroupDictionary[data.yAttData.name];
+                testimate.state.testParams.focusGroupY = testimate.state.focusGroupDictionary[data.yName()];
             }
 
         } else {
@@ -41,8 +41,8 @@ class TwoSampleT extends Test {
         let B = data.yAttData.theArray;
         const theHypothesizedValue = (testimate.state.testParams.value);
 
-        this.results.group1Name = data.xAttData.name;
-        this.results.group2Name = data.yAttData.name;
+        this.results.group1Name = data.xName();
+        this.results.group2Name = data.yName();
 
 
         if (this.grouping) {
@@ -156,10 +156,10 @@ class TwoSampleT extends Test {
         const comparison = `${testimate.state.testParams.theSidesOp} ${testimate.state.testParams.value}`;
 
         const resultHed = (this.grouping) ?
-            localize.getString("tests.twoSampleT.testQuestion1", testimate.state.x.name,this.results.group1Name,this.results.group2Name,comparison) :
+            localize.getString("tests.twoSampleT.testQuestion1", data.xName(),this.results.group1Name,this.results.group2Name,comparison) :
             testimate.state.testParams.reversed ?
-                localize.getString("tests.twoSampleT.testQuestion2", testimate.state.y.name,testimate.state.x.name,comparison) :
-                localize.getString("tests.twoSampleT.testQuestion2", testimate.state.x.name,testimate.state.y.name,comparison) ;
+                localize.getString("tests.twoSampleT.testQuestion2", data.yName(),data.xName(),comparison) :
+                localize.getString("tests.twoSampleT.testQuestion2", data.xName(),data.yName(),comparison) ;
 
         let poolingString = testimate.state.testParams.pooledVariances ?
             localize.getString("tests.twoSampleT.pooledVariance") :
@@ -200,8 +200,8 @@ class TwoSampleT extends Test {
         const mean = localize.getString("mean");
         const group = localize.getString("group");
 
-        const groupColHed = this.grouping ? `${testimate.state.y.name}` : group;
-        const meanColHead = this.grouping ? `${mean}(${testimate.state.x.name})` : mean;
+        const groupColHed = this.grouping ? `${data.yName()}` : group;
+        const meanColHead = this.grouping ? `${mean}(${data.xName()})` : mean;
         const total = localize.getString("total");
 
         let out = "";
@@ -220,21 +220,21 @@ class TwoSampleT extends Test {
      */
     static makeMenuString(iID) {
         if (iID === `NN02`) {
-            return localize.getString("tests.twoSampleT.menuString1", testimate.state.x.name, testimate.state.y.name);
+            return localize.getString("tests.twoSampleT.menuString1", data.xName(), data.yName());
         } else {
-            return localize.getString("tests.twoSampleT.menuString2", testimate.state.x.name, testimate.state.y.name);
+            return localize.getString("tests.twoSampleT.menuString2", data.xName(), data.yName());
         }
     }
 
     makeConfigureGuts() {
         const yComplement = Test.getComplementaryValue(data.yAttData, testimate.state.testParams.focusGroupY);
         const configStart = (this.grouping) ?
-            localize.getString("tests.twoSampleT.configStartPaired", testimate.state.x.name) :
+            localize.getString("tests.twoSampleT.configStartPaired", data.xName()) :
             localize.getString("tests.twoSampleT.configStartUnpaired");
 
         const chicletGuts = (testimate.state.testParams.reversed) ?
-            `mean(${testimate.state.y.name}) – mean(${testimate.state.x.name})` :
-            `mean(${testimate.state.x.name}) – mean(${testimate.state.y.name})` ;
+            `mean(${data.yName()}) – mean(${data.xName()})` :
+            `mean(${data.xName()}) – mean(${data.yName()})` ;
 
         const reverseSubChiclet = ui.reverseSubtractionChicletButtonHTML(chicletGuts);
 

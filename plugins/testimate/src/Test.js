@@ -176,7 +176,7 @@ class Test {
         }
         console.log(`    ... compatible tests: ${out.join(", ")}`);
         return out;
-    };
+    }
 
     /**
      * Make a text description of the test configuration.
@@ -361,6 +361,7 @@ class Test {
             makeMenuString: ( ) => {return TwoSampleP.makeMenuString(`BB02`);},
             fresh: (ix) => { return new TwoSampleP(ix, false)  },
         },
+        /*
         BC01: {         //  compare props using split
             id: `BC01`,
             name: `compare proportions (grouped)`,
@@ -374,7 +375,7 @@ class Test {
             makeMenuString: ( ) => {return TwoSampleP.makeMenuString(`BC01`);},
             fresh: (ix) => { return new TwoSampleP(ix, true)  },
         },
-
+*/
         /*
                 B_02: {
                     id: `B_02`,

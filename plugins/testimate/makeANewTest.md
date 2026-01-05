@@ -196,7 +196,7 @@ This way, we will get free UI help seeing if we chose this test for real!
 
 Again, we use independence as the model and lightly edit it.
 
-```javascript
+```json
       "independence": {
         "menuString": "chisquare test of independence of •1• from •2•",
         "testQuestion": "Are (•1•) and (•2•) independent?",
@@ -221,7 +221,7 @@ Now we fix `makeMenuString()`:
 ```javascript
 static makeMenuString() {
     return localize.getString("tests.fisher.menuString",    //  see? fisher!
-        testimate.state.y.name,testimate.state.x.name);
+            data.yName(),data.xName());
 }
 
 ```
@@ -409,7 +409,7 @@ It now looks like this:
     const TIopen = TIdetails && TIdetails.hasAttribute("open");
 
     let out = "<pre>";
-    out += localize.getString("tests.fisher.testQuestion", testimate.state.y.name, testimate.state.x.name);
+    out += localize.getString("tests.fisher.testQuestion", data.yName(), data.xName());
     out += `<br>    ${NString}, ${localize.getString("tests.fisher.columnsByRows", this.results.columnLabels.length, this.results.rowLabels.length)} `;
     out += `<br>    ${PString}, ${dfString}`;
     out += `<details id="TIdetails" ${TIopen ? "open" : ""}>`;

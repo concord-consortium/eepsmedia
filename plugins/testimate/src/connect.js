@@ -170,9 +170,9 @@ connect = {
         const graphObject = {
             type: "graph",
             name: testimate.constants.logisticGraphName,
-            title: `P(${data.xAttData.name} = ${testimate.state.testParams.focusGroupX})`,
+            title: `P(${data.xName()} = ${testimate.state.testParams.focusGroupX})`,
             dataContext: testimate.state.dataset.name,
-            xAttributeName: data.yAttData.name,
+            xAttributeName: data.yName(),
             yAttributeName: testimate.constants.logisticGroupAttributeName,
         };
 
@@ -203,14 +203,14 @@ connect = {
 
     updateDatasetForLogisticGroups: async function (iValue, iAxis) {
 
-        const theVariable = (iAxis === "X") ? data.xAttData.name : data.yAttData.name;
+        const theVariable = (iAxis === "X") ? data.xName() : data.yName();
         const theFormula = `\`${theVariable}\` = "${iValue}" ? 1 : 0`;
 
         const newAttributeInfo = {
             name: testimate.constants.logisticGroupAttributeName,
-            title: `${data.xAttData.name} = ${testimate.state.testParams.focusGroup}`,
+            title: `${data.xName()} = ${testimate.state.testParams.focusGroup}`,
             type: "numeric",
-            description: `equal to 1 if ${data.xAttData.name} = ${testimate.state.testParams.focusGroup}, zero otherwise`,
+            description: `equal to 1 if ${data.xName()} = ${testimate.state.testParams.focusGroup}, zero otherwise`,
             editable: false,
             formula: theFormula,
             hidden: true
@@ -229,7 +229,7 @@ connect = {
             if (theInfo.success) {
                 theInfo.values.collections.forEach(coll => {
                     coll.attrs.forEach(attr => {
-                        if (attr.name === data.xAttData.name) {
+                        if (attr.name === data.xName()) {
                             useThisCollection = coll.name;
                         }
                     });
@@ -274,8 +274,9 @@ connect = {
             const theMessage = {
                 action: "create",
                 resource: "dataContext",
-                values: this.constructEmitDatasetObject(),
+                values: this.constructEmitDatasetObject(iExtras),
             };
+
             try {
                 const result = await codapInterface.sendRequest(theMessage);
                 if (result.success) {
@@ -288,13 +289,9 @@ connect = {
             }
         }
 
-        //  add any "extra" attributes
-
-        await this.addExtraAttributesToEmittedDataset(iExtras);
-
         //  now emit one item...
 
-        let theItemValues = Object.assign({}, iExtras);
+        let theItemValues = {};     //      Object.assign({}, iExtras);
         const theTest = testimate.theTest;
         const theConfig = theTest.theConfig;
         const emittedAttributeNames = theConfig.emitted.split(",");
@@ -303,13 +300,11 @@ connect = {
 
         //  first list the standard attributes (parameters, mostly)
 
-        let theStandardAttributes = {};
-        theStandardAttributes[localize.getString("attributeNames.outcome")] = testimate.state.x.name;
-        theStandardAttributes[localize.getString("attributeNames.predictor")] =
-            (testimate.predictorExists()) ? testimate.state.y.name : "";
-        theStandardAttributes[localize.getString("attributeNames.procedure")] = theConfig.name;
+        theItemValues[localize.getString("attributeNames.outcome")] = data.xName();
+        theItemValues[localize.getString("attributeNames.predictor")] = (testimate.predictorExists()) ? data.yName() : "";
+        theItemValues[localize.getString("attributeNames.procedure")] = theConfig.name;
 
-        Object.assign(theItemValues, theStandardAttributes);
+        theItemValues = {...theItemValues, ...iExtras};     //  add extras if any (e.g., hierarchical group values)
 
         //  then add "results" values
 
@@ -331,7 +326,6 @@ connect = {
             }
         });
 
-
         const itemMessage = {
             action: 'create',
             resource: `dataContext[${testimate.constants.emittedDatasetName}].item`,
@@ -346,8 +340,13 @@ connect = {
         this.makeTableAppear();
     },
 
-
-    constructEmitDatasetObject: function () {
+    /**
+     * Makes the object sent to CODAP to construct the emitted ("tests and estimates") dataset
+     *
+     * @param iExtras   (object) additional items that are non-standard, usually from the top hierarchical collection
+     * @returns {{}}
+     */
+    constructEmitDatasetObject: function (iExtras) {
         let out = {};
 
         if (testimate.state.testID) {
@@ -356,6 +355,7 @@ connect = {
 
             //  first construct the "attrs" array
             let theAttrs = [];
+
             theAttrs.push({
                 //  name: "outcome",
                 name: localize.getString("attributeNames.outcome"),
@@ -379,6 +379,17 @@ connect = {
                 type: "categorical",
                 description: localize.getString("attributeDescriptions.procedure")
             });
+
+            //  now the extras
+
+            for (const name in iExtras) {
+                theAttrs.push({
+                    name : name,
+                    title : name,
+                    type : 'categorical',
+                    description: 'group'
+                });
+            }
 
             //  now add the attributes that are being emitted
 
@@ -407,35 +418,6 @@ connect = {
             };
         }
         return out;
-    },
-
-    addExtraAttributesToEmittedDataset : async function(iExtras) {
-        let theAtts = [];
-        let attList = [];
-
-        Object.keys(iExtras).forEach( k => {
-            const thisAtt = {
-                name : k
-            };
-            theAtts.push(thisAtt);
-            attList.push(k);
-        });
-
-        const theMessage = {
-            action : "create",
-            resource : `dataContext[${testimate.constants.emittedDatasetName}].collection[${testimate.constants.emittedDatasetName}].attribute`,
-            values : theAtts
-        };
-
-        try {
-            const result = await codapInterface.sendRequest(theMessage);
-            if (result.success) {
-                console.log(`added ${attList.join(', ')} to emit dataset`);
-            }
-        } catch (msg) {
-            console.log(`trouble adding extra attributes to emitted dataset: ${msg}`);
-        }
-
     },
 
     deleteOutputDataset: async function () {

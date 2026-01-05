@@ -1,4 +1,4 @@
-/* global testimate, ui */
+/* global testimate, ui, data */
 
 testimate.dropManager = {
 
@@ -75,8 +75,8 @@ testimate.dropManager = {
     },
 
     highlightNone: function() {
-        ui.xDIV.className = (testimate.state.x && testimate.state.x.name) ? `drag-none` : `drag-empty`;
-        ui.yDIV.className = (testimate.state.y && testimate.state.y.name) ? `drag-none` : `drag-empty`;
+        ui.xDIV.className = data.xName() ? `drag-none` : `drag-empty`;
+        ui.yDIV.className = data.yName() ? `drag-none` : `drag-empty`;
         this.currentlyOverDIV = null;
 
     },

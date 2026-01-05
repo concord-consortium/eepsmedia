@@ -66,9 +66,9 @@ class Paired extends Test {
 
         const testQuestion = testimate.state.testParams.reversed ?
             localize.getString("tests.paired.testQuestion",
-                testimate.state.y.name, testimate.state.x.name, testimate.state.testParams.theSidesOp, value) :
+                data.yName(), data.xName(), testimate.state.testParams.theSidesOp, value) :
             localize.getString("tests.paired.testQuestion",
-                testimate.state.x.name, testimate.state.y.name, testimate.state.testParams.theSidesOp, value) ;
+                data.xName(), data.yName(), testimate.state.testParams.theSidesOp, value) ;
         const MPDstring = `${localize.getString( "tests.paired.meanPairedDifference")} = ${ui.numberToString(this.results.mean, 3)}`;
 
         let out = "<pre>";
@@ -84,7 +84,7 @@ class Paired extends Test {
     }
 
     makeTestDescription( ) {
-        return `paired test of ${data.xAttData.name} - ${data.yAttData.name}`;
+        return `paired test of ${data.xName()} - ${data.yName()}`;
     }
 
     /**
@@ -92,11 +92,11 @@ class Paired extends Test {
      * @returns {string}    what shows up in a menu.
      */
     static makeMenuString() {
-        //  return `paired test of ${data.xAttData.name} - ${data.yAttData.name}`;
+        //  return `paired test of ${data.xName()} - ${data.yName()}`;
         if (testimate.state.testParams.reversed) {
-            return localize.getString("tests.paired.menuString", testimate.state.y.name, testimate.state.x.name);
+            return localize.getString("tests.paired.menuString", data.yName(), data.xName());
         } else {
-            return localize.getString("tests.paired.menuString", testimate.state.x.name, testimate.state.y.name);
+            return localize.getString("tests.paired.menuString", data.xName(), data.yName());
         }
     }
 
@@ -104,8 +104,8 @@ class Paired extends Test {
         const configStart = localize.getString("tests.paired.configurationStart");
 
         const chicletGuts = (testimate.state.testParams.reversed) ?
-            `${testimate.state.y.name} – ${testimate.state.x.name}` :
-            `${testimate.state.x.name} – ${testimate.state.y.name}` ;
+            `${data.yName()} – ${data.xName()}` :
+            `${data.xName()} – ${data.yName()}` ;
 
         const reverseSubChiclet = ui.reverseSubtractionChicletButtonHTML(chicletGuts);
         const sides = ui.sidesChicletButtonHTML(testimate.state.testParams.sides);

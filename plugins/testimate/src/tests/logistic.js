@@ -44,7 +44,7 @@ class Logistic extends Test {
         this.moreIterations = 0;        //  and that's how many!
 
         if (!testimate.restoringFromSave || !testimate.state.testParams.focusGroupX) {
-            testimate.state.testParams.focusGroupX = testimate.state.focusGroupDictionary[data.xAttData.name];
+            testimate.state.testParams.focusGroupX = testimate.state.focusGroupDictionary[data.xName()];
         }
 
 
@@ -125,7 +125,7 @@ class Logistic extends Test {
 
         //  shortFormula is for screen display, so has the attribute name
         //  longFormula is for actual use, and uses "x". Avoids trying to insert backtick...
-        const shortFormula = `1/(1 + e^(-4 * ${shortSlope} * (${data.yAttData.name} - ${shortPos})))`;
+        const shortFormula = `1/(1 + e^(-4 * ${shortSlope} * (${data.yName()} - ${shortPos})))`;
         const longFormula = `1/(1 + e^(-4 * ${longSlope} * (x - ${longPos})))`;
 
         return {shortFormula, longFormula};
@@ -156,17 +156,17 @@ class Logistic extends Test {
         out += `<br>       ${NString}, ${this.results.iterations} ${localize.getString("iterations")}, ${costString} ${more10button}<br><br>`;
 
         //  model
-        out += `<br>${localize.getString("tests.logistic.model1", testimate.state.y.name, pos)}.`;
+        out += `<br>${localize.getString("tests.logistic.model1", data.yName(), pos)}.`;
         out += `<br>       ${localize.getString("tests.logistic.model2", LSlope)}`;
         out += `<br>    ${localize.getString("tests.logistic.probFunctionHead")}`;
-        out += `<br>       prob(${data.xAttData.name} = ${testimate.state.testParams.focusGroupX}) = ${theShortFormula}`;
+        out += `<br>       prob(${data.xName()} = ${testimate.state.testParams.focusGroupX}) = ${theShortFormula}`;
 
         out += `<br><br>${graphButton}&emsp;`;
         out += `<input type='button' value="${copyFormulaWords}" onclick="navigator.clipboard.writeText('${theLongFormula}')">`;
 
         out += `<br><br>`;
-        out += localize.getString("tests.logistic.probQuery1", testimate.state.x.name, testimate.state.testParams.focusGroupX);
-        out += `<br>    ${localize.getString("tests.logistic.probQuery2", testimate.state.y.name)} = ${LRPbox}`;
+        out += localize.getString("tests.logistic.probQuery1", data.xName(), testimate.state.testParams.focusGroupX);
+        out += `<br>    ${localize.getString("tests.logistic.probQuery2", data.yName())} = ${LRPbox}`;
 
         if (testimate.state.testParams.probe) {
             const z = 4 * LSlope * (testimate.state.testParams.probe - pos);
@@ -183,7 +183,7 @@ class Logistic extends Test {
     }
 
     makeTestDescription() {
-        return `logistic regression: ${data.xAttData.name} as a function of ${data.yAttData.name}`;
+        return `logistic regression: ${data.xName()} as a function of ${data.yName()}`;
     }
 
     /**
@@ -192,8 +192,7 @@ class Logistic extends Test {
      */
     static makeMenuString() {
         return localize.getString("tests.logistic.menuString",
-            testimate.state.x.name, testimate.state.y.name);
-        //  return `logistic regression: ${data.xAttData.name} as a function of ${data.yAttData.name}`;
+            data.xName(), data.yName());
     }
 
     makeConfigureGuts() {
@@ -206,7 +205,7 @@ class Logistic extends Test {
         const iterationsWord = localize.getString("iterations");
 
         let theHTML = localize.getString("tests.logistic.configStart",
-            testimate.state.x.name, group, testimate.state.y.name);
+            data.xName(), group, data.yName());
 
         theHTML += `<br>&emsp;${rateWord} = ${rate} ${iterationsWord} = ${iter}`;
         return theHTML;
@@ -303,7 +302,8 @@ class Logistic extends Test {
             currentCost = newVals.theCost;
 
             if (iter % 17 === 0 || iter < 6) {
-                record += `\n${iter}, ${currentSlope}, ${currentPos}, ${currentCost}, ${newVals.hs}, ${newVals.hp}`;
+                record += `\n${iter}, ${ui.numberToString(currentSlope)}, ${ui.numberToString(currentPos)}, `
+                + `${ui.numberToString(currentCost)}, ${ui.numberToString(newVals.hs)}, ${ui.numberToString(newVals.hp)}`;
             }
         }
 

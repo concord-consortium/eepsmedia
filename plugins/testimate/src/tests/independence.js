@@ -50,7 +50,7 @@ class Independence extends Test {
         this.results.chisq = 0;
         let totalCells = 0;
         let totalZeroCells = 0;
-        let totalCellsFive = 0
+        let totalCellsFive = 0;
 
 
         for (let r = 0; r < this.results.rowLabels.length; r++) {
@@ -95,9 +95,10 @@ class Independence extends Test {
 
         let out = "<pre>";
         out += localize.getString("tests.independence.testQuestion",
-            testimate.state.y.name, testimate.state.x.name);
+            data.yName(), data.xName());
         out += `<br>    ${NString}, ${localize.getString("tests.fisher.columnsByRows", this.results.columnLabels.length, this.results.rowLabels.length)} `;
-        out += `&chi;<sup>2</sup> = ${chisq}, ${PString}`;
+        out += `&chi;<sup>2</sup> = ${chisq}`;
+        out += `<br>${PString}`;
         out += `<details id="TIdetails" ${TIopen ? "open" : ""}>`;
         out += localize.getString("tests.independence.detailsSummary");
         out += this.makeIndependenceTable();
@@ -110,7 +111,7 @@ class Independence extends Test {
 
     makeIndependenceTable() {
 
-        let headerRow = `<tr><td>${localize.getString("observed")}<br>${localize.getString("expected")}</td><th>${data.yAttData.name} = </th>`;
+        let headerRow = `<tr><td>${localize.getString("observed")}<br>${localize.getString("expected")}</td><th>${data.yName()} = </th>`;
         let tableRows = "";
 
         //  construct a header
@@ -125,7 +126,7 @@ class Independence extends Test {
 
         for (let r = 0; r < this.results.rowLabels.length; r++) {
             const row = this.results.rowLabels[r];      //  the string row label
-            const attLabel = (r === 0) ? `<th>${data.xAttData.name} = ` : `<th></th>`;
+            const attLabel = (r === 0) ? `<th>${data.xName()} = ` : `<th></th>`;
             let thisRow = `${attLabel}<th>${row}</th>`;
             for (let c = 0; c < this.results.columnLabels.length; c++) {
                 const obs = this.results.observed[c][r];
@@ -146,15 +147,17 @@ class Independence extends Test {
      */
     static makeMenuString() {
         return localize.getString("tests.independence.menuString",
-            testimate.state.y.name,testimate.state.x.name);
+            data.yName(),data.xName());
     }
 
     makeConfigureGuts() {
         const start = localize.getString("tests.independence.configurationStart",
-            testimate.state.y.name, testimate.state.x.name);
+            data.yName(), data.xName());
 
         const alpha = ui.alphaBoxHTML(testimate.state.testParams.alpha);
         let theHTML = `${start}:<br>&emsp;${alpha}`;        //      used to have "&emsp;${sides12Button}"
+
+        theHTML = "";
 
         return theHTML;
     }
