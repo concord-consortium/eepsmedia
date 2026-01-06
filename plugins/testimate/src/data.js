@@ -65,13 +65,11 @@ const data = {
      * @returns {Promise<void>}
      */
     makeXandYArrays: async function (data) {
-        if (testimate.state.x) {
+        if (testimate.state.x.name) {
             this.xAttData = new AttData(testimate.state.x.name, data);
-            if (!testimate.state.focusGroupDictionary[this.xAttData.name]) {
-                testimate.state.testParams.focusGroupX = testimate.setFocusGroup(this.xAttData, null);
-            }
+            testimate.state.testParams.focusGroupX = testimate.setFocusGroup(this.xAttData, null);
         }
-        if (testimate.state.y) {
+        if (testimate.state.y.name) {
             this.yAttData = new AttData(testimate.state.y.name, data);
             testimate.state.testParams.focusGroupY = testimate.setFocusGroup(this.yAttData, null);
         }
@@ -92,7 +90,7 @@ const data = {
         //  same length as original!
 
         let xIntermediate = [];
-        if (testimate.state.x) {
+        if (this.xAttData) {
             const xMustBeNumeric = (testimate.state.dataTypes[testimate.state.x.name] === 'numeric');
             this.xAttData.theRawArray.forEach(xx => {
                 if (xMustBeNumeric) {
@@ -104,7 +102,7 @@ const data = {
         }
 
         let yIntermediate = [];
-        if (testimate.state.y) {
+        if (this.yAttData) {
             const yMustBeNumeric = (testimate.state.dataTypes[testimate.state.y.name] === 'numeric');
             this.yAttData.theRawArray.forEach(xx => {
                 if (yMustBeNumeric) {
@@ -139,7 +137,7 @@ const data = {
         }
 
         this.xAttData.theArray = newXArray;
-        if (testimate.state.y) this.yAttData.theArray = newYArray;
+        if (this.yAttData) this.yAttData.theArray = newYArray;
 
         console.log(`    cleaned xAttData (${this.xAttData.theArray.length})`);
 

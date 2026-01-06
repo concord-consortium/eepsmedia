@@ -195,7 +195,7 @@ const testimate = {
      *
      * @param iAttData       the attribute data we're looking at
      * @param iValue         proposed value
-     *  @returns {Promise<void>}
+     *  @returns {Promise<void>}    the value for the focus group (becomes testimate.state.testParams.focusGroupX or ...Y.)
      */
     setFocusGroup:  function (iAttData, iValue) {
         const theName = iAttData.name;

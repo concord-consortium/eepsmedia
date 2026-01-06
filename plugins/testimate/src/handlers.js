@@ -172,21 +172,14 @@ const handlers = {
     },
 
 
-    getNextGroupValue: function(initialValue) {
-        const valueSet = [...data.xAttData.valueSet];
-
-        if (initialValue) {
-            const nextValue = this.nextValueInList(valueSet, initialValue);
-            return nextValue ? nextValue : null;
-        } else {
-            return valueSet[0];
-        }
-    },
-
     nextValueInList: function (iList, iValue) {
-        const iOrig = iList.indexOf(iValue);
-        const iNext = (iOrig + 1 >= iList.length) ? 0 : iOrig + 1;
-        return iList[iNext];
+        if (iValue) {
+            const iOrig = iList.indexOf(iValue);
+            const iNext = (iOrig + 1 >= iList.length) ? 0 : iOrig + 1;
+            return iList[iNext];
+        } else {
+            return iList[0];
+        }
     },
 
 

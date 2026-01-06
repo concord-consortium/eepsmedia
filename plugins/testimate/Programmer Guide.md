@@ -335,6 +335,80 @@ in the dictionary:
         testimate.state.testParamDictionary[testimate.theTest.testID] = testimate.state.testParams;
 ... etc ...
 ```
+
+### Implementing focus groups
+
+Key ideas:
+* The current focus group is stored in
+  `testimate.state.testParams.focusGroupX`. (or Y)
+* A dictionary of focus groups, by attribute name, is stored in
+`testimate.state.focusGroupDictionary`.
+* Users can advance the focus group to the next possible value.
+* If the desired value is not available, we look first
+at the dictionary, and if it's not there, we default back to teh first value.
+
+
+In a number of tests with categorical attributes,
+we want to focus on one of those values,
+often to use it as the "numerator" in a calculation
+and to display it at the left or top of a table
+(see especially Fisher exact).
+
+For example, in a test of proportion in a baseball dataset, with an attribute
+`atBat` that has values of `hit` and `out` (say), 
+we would calculate the proportion of _something_,
+so we need to decide if it's hits or outs.
+If we wanted to test the proportion of hits, we would say that
+the string
+"hit" was the "focus group" for the attribute `atBat`.
+Then, in calculations, we would count how many of the data values
+matched that string.
+
+By default, the focus group is the value of that attribute in the first case,
+which is often not what's wanted.
+So the user can click on that value, displayed in the configuration box,
+to change it.
+
+This invokes a handler (in `handlers.js`). For the "X" (outcome) value, 
+it looks like this:
+
+```javascript
+changeFocusGroupX: function () {
+    const initialGroup = testimate.state.testParams.focusGroupX;
+    const valueSet = [...data.xAttData.valueSet];
+    const nextValue = this.nextValueInList(valueSet, initialGroup);
+    testimate.state.testParams.focusGroupX = testimate.setFocusGroup(data.xAttData, nextValue);
+    testimate.determineSidesOp();   //      the data are there already; this changes the sign, which changes pValue
+    testimate.refreshDataAndTestResults();
+}
+```
+You can see basically how this works.
+We get the current focus group, which is stored in `testParams`. 
+We then send the set of values and that current value to 
+`testimate.setFocusGroup()`, where the magic happens:
+
+```javascript
+setFocusGroup:  function (iAttData, iValue) {
+    const theName = iAttData.name;
+    const theValues = [...iAttData.valueSet];  //  possible values for groups
+    const defaultValue = this.state.focusGroupDictionary[theName] ?
+        this.state.focusGroupDictionary[theName] :
+        theValues[0];
+
+    const theValue = theValues.includes(iValue) ? iValue : defaultValue;
+
+    this.state.focusGroupDictionary[theName] = theValue;
+
+    return theValue;
+}
+```
+Now: after this handler-testimate dance happens, the system calls
+`testimate.refreshDataAndTestResults()`, which recreates the `AttData`
+objects.
+In `data.makeXandYArrays()`, the method calls `testimate.setFocusGroup()` 
+_again_, with a null suggested value.
+`testimate` returns the newly-set dictionary value.
+
 ### Two-sample t, special note
 
 In late 2025, at the suggestion of Lee Creighton, we changed from the ordinary

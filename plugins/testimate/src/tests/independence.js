@@ -99,7 +99,7 @@ class Independence extends Test {
         out += `<br>    ${NString}, ${localize.getString("tests.fisher.columnsByRows", this.results.columnLabels.length, this.results.rowLabels.length)} `;
         out += `&chi;<sup>2</sup> = ${chisq}, ${PString}`;
         out += `<details id="TIdetails" ${TIopen ? "open" : ""}>`;
-        out += localize.getString("tests.independence.detailsSummary", testimate.state.testParams.sides);
+        out += localize.getString("tests.independence.detailsSummary");
         out += this.makeIndependenceTable();
         out += `<br>    ${dfString}, &alpha; = ${alpha}, &chi;<sup>2</sup>* = ${chisqCrit} <br>`;
         out += `</details>`;
@@ -112,10 +112,6 @@ class Independence extends Test {
 
         let headerRow = `<tr><td>${localize.getString("observed")}<br>${localize.getString("expected")}</td><th>${data.yAttData.name} = </th>`;
         let tableRows = "";
-/*
-        let observedRow = `<tr><td>${localize.getString("observed")}</td>`;
-        let expectedRow = `<tr><td>${localize.getString("expected")}</td>`;
-*/
 
         //  construct a header
 

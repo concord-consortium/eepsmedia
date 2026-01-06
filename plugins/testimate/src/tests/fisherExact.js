@@ -1,6 +1,6 @@
 /**
  *
-*   Class to compute and display results from the Fisher exact test of independence in a 2x2 case.
+ *   Class to compute and display results from the Fisher exact test of independence in a 2x2 case.
  */
 
 /* global testimate, data, Test, jStat, ui, localize */
@@ -58,9 +58,7 @@ class Fisher extends Test {
         const d = this.results.d;
         console.log(`a, b, c, d: ${a} ${b} ${c} ${d}`);
 
-        if (!testimate.iteratingRandom) {testimate.determineSidesOp();}
-
-        const fisherResult = this.fisherExactTest(a, b, c, d, testimate.state.testParams.theSidesOp);
+        const fisherResult = this.fisherExactTest(a, b, c, d);
         //  const fisherResult = this.fisherExactTest(a, b, c, d, ">");
         console.log(`Fisher result: ${JSON.stringify(fisherResult)}`);
 
@@ -103,13 +101,15 @@ class Fisher extends Test {
 
         out += "<ul>";
         out += localize.getString("tests.fisher.nullStatement1", testimate.state.x.name, testimate.state.y.name);
+/*
         out += localize.getString("tests.fisher.upperLeft",
             testimate.state.x.name, testimate.state.y.name,
             this.results.rowLabels[0], this.results.columnLabels[0],
             this.results.a
-            );
+        );
         out += localize.getString("tests.fisher.aProbability", this.results.a, ui.numberToString(this.results.pObserved));
         out += localize.getString("tests.fisher.aExpected", ui.numberToString(this.results.aExpected));
+*/
         if (testimate.state.testParams.sides === 2) {
             out += localize.getString("tests.fisher.twoSidedDef", ui.numberToString(this.results.pObserved));
         } else {
@@ -128,16 +128,26 @@ class Fisher extends Test {
 
     makeFisherTable() {
 
+        const count00 = this.results.observed[0][0];
+        const count01 = this.results.observed[0][1];
+        const count10 = this.results.observed[1][0];
+        const count11 = this.results.observed[1][1];
+
+        const pct00 = ui.numberToString(100 * count00 / (count00 + count01), 3) + "%";
+        const pct01 = ui.numberToString(100 * count01 / (count00 + count01), 3) + "%";
+        const pct10 = ui.numberToString(100 * count10 / (count10 + count11), 3) + "%";
+        const pct11 = ui.numberToString(100 * count11 / (count10 + count11), 3) + "%";
+
         let headerRows = `<tr><th></th><th></th><th colspan="2">${data.yAttData.name}</th>`;
         headerRows += `<tr><th></th><th></th><th>${this.results.columnLabels[0]}</th><th>${this.results.columnLabels[1]}</th></tr>`;
         //  first row of data
         let tableRows = "<tr>";
         tableRows += `<th rowSpan="2">${data.xAttData.name}</th><th>${this.results.rowLabels[0]}</th>`;
-        tableRows += `<td>${this.results.observed[0][0]}</td><td>${this.results.observed[1][0]}</td>  </tr>`;
+        tableRows += `<td>${count00}<br>${pct00}</td><td>${count10}<br>${pct10}</td>  </tr>`;
         //  second row of data
         tableRows += "<tr>";
         tableRows += `<th>${this.results.rowLabels[1]}</th>`;
-        tableRows += `<td>${this.results.observed[0][1]}</td><td>${this.results.observed[1][1]}</td>  </tr>`;
+        tableRows += `<td>${count01}<br>${pct01}</td><td>${count11}<br>${pct11}</td>  </tr>`;
 
         return `<table class="test-results">${headerRows}${tableRows}</table>`;
     }
@@ -149,23 +159,25 @@ class Fisher extends Test {
      */
     static makeMenuString() {
         return localize.getString("tests.fisher.menuString",    //  see? fisher!
-            testimate.state.y.name,testimate.state.x.name);
+            testimate.state.y.name, testimate.state.x.name);
     }
 
     makeConfigureGuts() {
         const xName = testimate.state.x.name;
         const yName = testimate.state.y.name;
-        const start = localize.getString("tests.fisher.configurationStart", xName, yName);
-        const groupXbutton = ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX);
-        const groupYbutton = ui.focusGroupButtonYHTML(testimate.state.testParams.focusGroupY);
+        const yAlternative = Test.getComplementaryValue( data.yAttData, testimate.state.testParams.focusGroupY);
+
         const sidesButtonHTML = ui.sidesFisherButtonHTML(testimate.state.testParams.sides);
 
-        const focusThis = localize.getString("tests.fisher.configureFocusThis");
-        const analysisOn = localize.getString("tests.fisher.configureAnalysisOn");
+        const start = localize.getString("tests.fisher.configurationStart", sidesButtonHTML);
+        const moreOrLess = this.results.a > this.results.aExpected ? "more" : "less";
+        const groupXbutton = ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX);
+        const groupYbutton = ui.focusGroupButtonYHTML(testimate.state.testParams.focusGroupY);
 
-        let theHTML = `${start}:<br>&emsp;${focusThis} ${sidesButtonHTML} ${analysisOn}`;        //      used to have "&emsp;${sides12Button}"
-        theHTML += `<br>&emsp;${xName} = ${groupXbutton} ${localize.getString("and")}`;
-        theHTML += `<br>&emsp;${yName} = ${groupYbutton}`;
+        let theHTML = start;
+        theHTML += localize.getString("tests.fisher.configureDataShow", testimate.state.y.name, groupYbutton);
+        theHTML += localize.getString("tests.fisher.configureMoreOrLess", moreOrLess, testimate.state.x.name, groupXbutton);
+        theHTML += localize.getString("tests.fisher.configureThanAlternative", testimate.state.y.name, yAlternative);
 
         return theHTML;
     }
@@ -179,7 +191,7 @@ class Fisher extends Test {
     }
 
     // Fisher's Exact Test Implementation (from Clause)
-    fisherExactTest(a, b, c, d, sidesOp = "≠")  {
+    fisherExactTest(a, b, c, d) {
         console.log("Fisher calculation!");
 
         const n = a + b + c + d;
@@ -208,6 +220,14 @@ class Fisher extends Test {
         // Range of possible values for 'a'
         const minA = Math.max(0, colMargin1 - (n - rowMargin1));
         const maxA = Math.min(rowMargin1, colMargin1);
+
+        //  find the direction of the test, but we can't do that until we get the expected value for "a"
+
+        this.results.aExpected = rowMargin1 * colMargin1 / n;
+        if (!testimate.iteratingRandom) {
+            testimate.determineSidesOp();
+        }
+        const sidesOp = testimate.state.testParams.theSidesOp;
 
         let pValue;
 
@@ -247,12 +267,13 @@ class Fisher extends Test {
             pValue: Math.min(pValue, 1), // Cap at 1 due to floating point errors
             oddsRatio: isFinite(oddsRatio) ? oddsRatio : null,
             relativeRisk: isFinite(relativeRisk) ? relativeRisk : null,
-            pObserved : pObserved,
-            aExpected : rowMargin1 * colMargin1 / n
+            pObserved: pObserved,
+            aExpected: rowMargin1 * colMargin1 / n
         };
     }
 
 }
+
 /*
 FROM CLAUDE
 
