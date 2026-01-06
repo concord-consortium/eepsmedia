@@ -10,6 +10,7 @@
     --drag-none-bg-color : lightblue;
     --drag-empty-bg-color : lightgray;
     --warn-color : pink;
+    --att-bg-color : #fed
 
 }
 
@@ -33,9 +34,13 @@ pre {
 kbd {
     font-family: "Nanum Gothic Coding", monospace;
     font-size: smaller;
+    background-color: var(--att-bg-color);
     border-radius: 3px;
     padding: 1px 2px 0;
+    padding-bottom: 2px;
+    /*
     border: 1px solid black;
+    */
 }
 
 details {

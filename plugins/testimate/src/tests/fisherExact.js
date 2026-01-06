@@ -75,41 +75,42 @@ class Fisher extends Test {
         const orString = Test.makeResultValueString("oddsRatio", this.results.oddsRatio, 3);
         const rrString = Test.makeResultValueString("relativeRisk", this.results.relativeRisk, 3);
         const PString = Test.makePString(this.results.P);
-//        const dfString  = Test.makeResultValueString("df", this.results.df);
 
         const FisherDetails = document.getElementById("FisherDetails");
         const detailsOpen = FisherDetails && FisherDetails.hasAttribute("open");
-        const table2by2Details = document.getElementById("table2by2Details");
-        const table2by2Open = table2by2Details && table2by2Details.hasAttribute("open");
+        const FisherDiscussion = document.getElementById("FisherDiscussion");
+        const discussionOpen = FisherDiscussion && FisherDiscussion.hasAttribute("open");
+
+        let moreOrLessLikely = this.results.a > this.results.aExpected ?
+            localize.getString("moreLikely") : localize.getString("lessLikely");
+        if (this.results.a === this.results.aExpected) moreOrLessLikely = localize.getString("justAsLikely");
+
+        const yAlternative = Test.getComplementaryValue(data.yAttData, testimate.state.testParams.focusGroupY);
 
         let out = "<pre>";
         out += localize.getString("tests.fisher.testQuestion", testimate.state.y.name, testimate.state.x.name);
         out += `<br>    ${NString}, ${rrString}, ${orString}`;
-        out += `<br>    ${PString}`;
+        out += `<br>    ${PString} (${localize.getString("Nsided", testimate.state.testParams.sides)})`;
 
-        //  table is enclosed in a <details>
+        //  table enclosed in a <details>
 
-        out += `<details id="table2by2Details" ${table2by2Open ? "open" : ""}>`;
-        out += localize.getString("tests.fisher.tableDetailsSummary", testimate.state.x.name, testimate.state.y.name);
+        out += `<details id="FisherDetails" ${detailsOpen ? "open" : ""}>`;
+        out += localize.getString("tests.fisher.detailsSummary");
         out += this.makeFisherTable();
         out += `</details>`;
 
-        out += `<details id="FisherDetails" ${detailsOpen ? "open" : ""}>`;
-        out += localize.getString("tests.fisher.detailsSummary", testimate.state.testParams.sides);
+        //  discussion section, also <details>
 
-        //  out += `<div id="fisherExplanation>`;
+        out += `<details id="FisherDiscussion" ${discussionOpen ? "open" : ""}>`;
+        out += localize.getString("tests.fisher.discussionSummary");
 
         out += "<ul>";
         out += localize.getString("tests.fisher.nullStatement1", testimate.state.x.name, testimate.state.y.name);
-/*
-        out += localize.getString("tests.fisher.upperLeft",
-            testimate.state.x.name, testimate.state.y.name,
-            this.results.rowLabels[0], this.results.columnLabels[0],
-            this.results.a
-        );
-        out += localize.getString("tests.fisher.aProbability", this.results.a, ui.numberToString(this.results.pObserved));
-        out += localize.getString("tests.fisher.aExpected", ui.numberToString(this.results.aExpected));
-*/
+
+        out += localize.getString("tests.fisher.configureDataShow", testimate.state.y.name, testimate.state.testParams.focusGroupY);
+        out += localize.getString("tests.fisher.configureMoreOrLess", moreOrLessLikely, testimate.state.x.name, testimate.state.testParams.focusGroupX);
+        out += localize.getString("tests.fisher.configureThanAlternative", testimate.state.y.name, yAlternative);
+
         if (testimate.state.testParams.sides === 2) {
             out += localize.getString("tests.fisher.twoSidedDef", ui.numberToString(this.results.pObserved));
         } else {
@@ -118,10 +119,7 @@ class Fisher extends Test {
                 (testimate.state.testParams.theSidesOp === ">") ? "more" : "fewer");
         }
         out += "</ul>";
-        //  out += `</div>`;
-
         out += `</details>`;
-
         out += `</pre>`;
         return out;
     }
@@ -138,7 +136,7 @@ class Fisher extends Test {
         const pct10 = ui.numberToString(100 * count10 / (count10 + count11), 3) + "%";
         const pct11 = ui.numberToString(100 * count11 / (count10 + count11), 3) + "%";
 
-        let headerRows = `<tr><th></th><th></th><th colspan="2">${data.yAttData.name}</th>`;
+        let headerRows = `<tr><th>${localize.getString("tests.fisher.columnPctLabel")}</th><th></th><th colspan="2">${data.yAttData.name}</th>`;
         headerRows += `<tr><th></th><th></th><th>${this.results.columnLabels[0]}</th><th>${this.results.columnLabels[1]}</th></tr>`;
         //  first row of data
         let tableRows = "<tr>";
@@ -165,19 +163,15 @@ class Fisher extends Test {
     makeConfigureGuts() {
         const xName = testimate.state.x.name;
         const yName = testimate.state.y.name;
-        const yAlternative = Test.getComplementaryValue( data.yAttData, testimate.state.testParams.focusGroupY);
 
         const sidesButtonHTML = ui.sidesFisherButtonHTML(testimate.state.testParams.sides);
 
         const start = localize.getString("tests.fisher.configurationStart", sidesButtonHTML);
-        const moreOrLess = this.results.a > this.results.aExpected ? "more" : "less";
         const groupXbutton = ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX);
         const groupYbutton = ui.focusGroupButtonYHTML(testimate.state.testParams.focusGroupY);
 
         let theHTML = start;
-        theHTML += localize.getString("tests.fisher.configureDataShow", testimate.state.y.name, groupYbutton);
-        theHTML += localize.getString("tests.fisher.configureMoreOrLess", moreOrLess, testimate.state.x.name, groupXbutton);
-        theHTML += localize.getString("tests.fisher.configureThanAlternative", testimate.state.y.name, yAlternative);
+        theHTML += localize.getString("tests.fisher.configureFocus", yName, groupYbutton, xName, groupXbutton);
 
         return theHTML;
     }
