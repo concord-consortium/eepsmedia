@@ -165,6 +165,10 @@ class TwoSampleT extends Test {
             localize.getString("tests.twoSampleT.pooledVariance") :
             localize.getString("tests.twoSampleT.unpooledVariance");
 
+        let poolingString = testimate.state.testParams.pooledVariances ?
+            localize.getString("tests.twoSampleT.pooledVariance") :
+            localize.getString("tests.twoSampleT.unpooledVariance");
+
         let out = "<pre>";
 
         out += `${resultHed} <br>`;
