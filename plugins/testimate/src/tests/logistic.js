@@ -46,8 +46,6 @@ class Logistic extends Test {
         if (!testimate.restoringFromSave || !testimate.state.testParams.focusGroupX) {
             testimate.state.testParams.focusGroupX = testimate.state.focusGroupDictionary[data.xName()];
         }
-
-
     }
 
     async updateTestResults() {
@@ -106,7 +104,7 @@ class Logistic extends Test {
         );
 
         if (this.graphShowing) {
-            content.showLogisticGraph(this.makeFormulaString().longFormula);
+            content.showRegressionGraph(this.makeFormulaString().longFormula);
         }
 
         this.results.iterations += Number(iterations);
@@ -117,7 +115,7 @@ class Logistic extends Test {
         testimate.OKtoRespondToCaseChanges = true;
     }
 
-    makeFormulaString() {
+    makeFormulaStrings() {
         const longSlope = this.results.LSlope;
         const shortSlope = ui.numberToString(this.results.LSlope, 4);
         const shortPos = ui.numberToString(this.results.pos, 4);
@@ -138,17 +136,20 @@ class Logistic extends Test {
         const LSlope = ui.numberToString(this.results.LSlope, 4);
         const pos = ui.numberToString(this.results.pos, 4);
         const LRPbox = ui.logisticRegressionProbeBoxHTML(testimate.state.testParams.probe);
-        const graphButton = ui.makeLogisticGraphButtonHTML();
-        const theFormulas = this.makeFormulaString();
+
+        const theFormulas = this.makeFormulaStrings();
         const theShortFormula = theFormulas.shortFormula;
         const theLongFormula = theFormulas.longFormula;
+        const graphButton = ui.makeRegressionGraphButtonHTML(theLongFormula);
+        const copyFormulaButton = ui.makeCopyFormulaButtonHTML(theLongFormula);
+
+        ui.graphTitle = `P(${data.xName()} = ${testimate.state.testParams.focusGroupX})`;
 
         console.log(theLongFormula);
 
         const more10button = `<input type = "button" 
             value = "${localize.getString("nMore", 10)}" 
             onclick = "handlers.doMoreIterations(10)"`;
-        const copyFormulaWords = localize.getString("copyFormula");
 
         let out = "<pre>";
 
@@ -161,8 +162,7 @@ class Logistic extends Test {
         out += `<br>    ${localize.getString("tests.logistic.probFunctionHead")}`;
         out += `<br>       prob(${data.xName()} = ${testimate.state.testParams.focusGroupX}) = ${theShortFormula}`;
 
-        out += `<br><br>${graphButton}&emsp;`;
-        out += `<input type='button' value="${copyFormulaWords}" onclick="navigator.clipboard.writeText('${theLongFormula}')">`;
+        out += `<br><br>${graphButton}&emsp;${copyFormulaButton}`;
 
         out += `<br><br>`;
         out += localize.getString("tests.logistic.probQuery1", data.xName(), testimate.state.testParams.focusGroupX);
@@ -199,7 +199,6 @@ class Logistic extends Test {
         const rate = ui.rateBoxHTML(testimate.state.testParams.rate, 1.0, 0.01);
         const iter = ui.iterBoxHTML(testimate.state.testParams.iter);
         const group = ui.focusGroupButtonXHTML(testimate.state.testParams.focusGroupX);
-        const showGraph = ui.makeLogisticGraphButtonHTML();
 
         const rateWord = localize.getString("rate");
         const iterationsWord = localize.getString("iterations");

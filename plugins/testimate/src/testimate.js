@@ -133,6 +133,9 @@ const testimate = {
         this.state.testID = null;
         this.state.x = null;
         this.state.y = null;    //  change of dataset, remove attributes
+        data.xAttData = null;
+        data.yAttData = null;
+        data.dirtyData = true;
 
         await connect.registerForCaseChanges(this.state.dataset.name);
         await connect.registerForAttributeEvents(this.state.dataset.name);
@@ -242,7 +245,7 @@ const testimate = {
 
     constants: {
         pluginName: `testimate`,
-        version: `2026c`,
+        version: `2026d`,
         dimensions: {height: 555, width: 444},
 
         emittedDatasetName: `tests and estimates`,     //      for receiving emitted test and estimate results

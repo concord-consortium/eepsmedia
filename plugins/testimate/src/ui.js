@@ -19,6 +19,8 @@ ui = {
     configDIV: null,
     emitControls: null,
 
+    graphTitle: "graph",
+
     emitMode: "single",
 
     initialize: function () {
@@ -254,11 +256,18 @@ ui = {
         return testimate.state.focusGroupDictionary[data.xName()];
     },
 
-    makeLogisticGraphButtonHTML: function (iGroup) {
+    makeRegressionGraphButtonHTML: function (iFormula) {
         const theLabel = localize.getString("showGraph");
-        return `<input id="logisticGraphButton" type="button" 
-                onclick="handlers.showLogisticGraph()" 
+        return `<input id="regressionGraphButton" type="button" 
+                onclick="handlers.showRegressionGraph('${iFormula}')" 
                 value="${theLabel}">`;
+    },
+
+    makeCopyFormulaButtonHTML: function (iFormula) {
+        const copyFormulaWords = localize.getString("copyFormula");
+        return `<input id="copyFormulaButton" type="button" 
+                onclick="navigator.clipboard.writeText('${iFormula}')"
+                value="${copyFormulaWords}">`;
     },
 
     /**

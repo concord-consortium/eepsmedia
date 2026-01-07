@@ -74,8 +74,8 @@ class Regression extends Test {
         const PString = Test.makePString(this.results.P);
         const dfString = Test.makeResultValueString("df", this.results.df, 3);
 
-        const slope = ui.numberToString(this.results.slope);       //  CI of slope
-        const intercept = ui.numberToString(this.results.intercept);       //  CI of slope
+        const slope = ui.numberToString(this.results.slope);
+        const intercept = ui.numberToString(this.results.intercept);
         const CISmin = ui.numberToString(this.results.slopeCImin);       //  CI of slope
         const CISmax = ui.numberToString(this.results.slopeCImax);
         const CIImin = ui.numberToString(this.results.interceptCImin);   //  CI of intercept
@@ -92,6 +92,8 @@ class Regression extends Test {
         const X = data.xName();
         const Y = data.yName();
 
+        ui.graphTitle = `${data.xName()} vs ${data.yName()}`;
+
         const DSdetails = document.getElementById("DSdetails");
         const DSopen = DSdetails && DSdetails.hasAttribute("open");
 
@@ -99,15 +101,24 @@ class Regression extends Test {
         const slopeWord = localize.getString("slope");
         const interceptWord = localize.getString("intercept");
 
+        const theLongFormula = `${this.results.slope} * (${Y}) ${theSign} ${Math.abs(this.results.intercept)}`;  //  note reversal!
+
+        const graphButton = ui.makeRegressionGraphButtonHTML();
+        const copyFormulaButton = ui.makeCopyFormulaButtonHTML(theLongFormula);
+
         let out = "<pre>";
 
         //  out += `How does (${X}) depend on (${Y})?`
         out += localize.getString("tests.regression.testQuestion", X, Y);
-        out += `<br>    LSRL: ${X} = ${slope}(${Y}) ${theSign} ${Math.abs(intercept)} `;  //  note reversal!
+        out += `<br>    LSRL: ${X} = ${slope} * (${Y}) ${theSign} ${Math.abs(intercept)} `;  //  note reversal!
         out += `<br>    ${NString}, &rho; = ${rho}, r<sup>2</sup> = ${rsq}<br>`;
+
+        out += `<br>${graphButton}&emsp;${copyFormulaButton}<br><br>`;
+
+
         out += `<details id="DSdetails" ${DSopen ? "open" : ""}>`;
         out += localize.getString("tests.regression.detailsSummary", X, Y);
-        out += `<table><tr><td>${slopeWord}</td><td>${slope}</td><td>${conf}% ${localize.getString("CI")} = [${CISmin}, ${CISmax}]</td></tr>`;
+        out += `<table class="test-results"><tr><td>${slopeWord}</td><td>${slope}</td><td>${conf}% ${localize.getString("CI")} = [${CISmin}, ${CISmax}]</td></tr>`;
         out += `<tr><td>${interceptWord}</td><td>${intercept}</td><td>${conf}% ${localize.getString("CI")} = [${CIImin}, ${CIImax}]</td></tr></table>`;
         out += `<br> `;
         out += `${testingSlopePhrase} ${testimate.state.testParams.theSidesOp} ${testimate.state.testParams.value} `;

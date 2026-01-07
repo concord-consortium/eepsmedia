@@ -78,12 +78,12 @@ const data = {
      * @returns {Promise<void>}
      */
     makeXandYArrays: async function (data) {
-        if (testimate.state.x.name) {
-            this.xAttData = new AttData(testimate.state.x.name, data);
+        if (testimate.state.x) {
+            this.xAttData = new AttData(testimate.state.x, data);
             testimate.state.testParams.focusGroupX = testimate.setFocusGroup(this.xAttData, null);
         }
-        if (testimate.state.y.name) {
-            this.yAttData = new AttData(testimate.state.y.name, data);
+        if (testimate.state.y) {
+            this.yAttData = new AttData(testimate.state.y, data);
             testimate.state.testParams.focusGroupY = testimate.setFocusGroup(this.yAttData, null);
         }
 

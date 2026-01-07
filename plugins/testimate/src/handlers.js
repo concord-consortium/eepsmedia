@@ -166,9 +166,11 @@ const handlers = {
         testimate.refreshDataAndTestResults();
     },
 
-    showLogisticGraph: function() {
-        const formulas = testimate.theTest.makeFormulaString();
-        connect.showLogisticGraph(formulas.longFormula);
+    showRegressionGraph: function(iFormula) {
+        //  const formulas = testimate.theTest.makeFormulaStrings();
+        const xName = testimate.theTest.theConfig.name === "logistic regression" ?
+            testimate.constants.logisticGroupAttributeName : data.xName();
+        connect.showRegressionGraph(data.yName(), xName, iFormula);
     },
 
 

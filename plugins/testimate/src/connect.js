@@ -1,4 +1,4 @@
-/* global testimate, Test, data, handlers, codapInterface, localize */
+/* global testimate, Test, data, handlers, codapInterface, localize, ui */
 
 let connect;
 
@@ -159,21 +159,22 @@ connect = {
         };
 
         try {
-            const result = await codapInterface.sendRequest(theMessage);
+            await codapInterface.sendRequest(theMessage);
         } catch (msg) {
             alert(`problem rerandomizing dataset: ${iDatasetName} : ${msg}`);
         }
     },
 
 
-    showLogisticGraph: async function (iFormula) {
+    showRegressionGraph: async function (xName, yName, iFormula) {
+        //  todo: when CODAP API allows, install the formula!
         const graphObject = {
             type: "graph",
             name: testimate.constants.logisticGraphName,
-            title: `P(${data.xName()} = ${testimate.state.testParams.focusGroupX})`,
+            title: ui.graphTitle, //       `P(${data.xName()} = ${testimate.state.testParams.focusGroupX})`,
             dataContext: testimate.state.dataset.name,
-            xAttributeName: data.yName(),
-            yAttributeName: testimate.constants.logisticGroupAttributeName,
+            xAttributeName: xName,       //  note reversal!
+            yAttributeName: yName,
         };
 
         const theMessage = {
@@ -183,7 +184,7 @@ connect = {
         };
 
         try {
-            const result = await codapInterface.sendRequest(theMessage);
+            await codapInterface.sendRequest(theMessage);
 
         } catch (msg) {
             alert(`trouble showing the logistics graph ${msg}`);
@@ -196,7 +197,7 @@ connect = {
             resource: `component[${testimate.constants.logisticGraphName}]`
         };
 
-        const result = codapInterface.sendRequest(theMessage);
+        codapInterface.sendRequest(theMessage);
 
     },
 
@@ -242,7 +243,6 @@ connect = {
             alert(`could not get dataset info for [${testimate.state.dataset.name}] in connect.js...${msg}`);
         }
 
-
         const newAttMessage = {
             action: "create",
             resource: `dataContext[${testimate.state.dataset.name}].collection[${useThisCollection}].attribute`,
@@ -250,8 +250,7 @@ connect = {
         };
 
         try {
-            const newAttResult = await codapInterface.sendRequest(newAttMessage);
-
+            await codapInterface.sendRequest(newAttMessage);
         } catch (msg) {
             alert(`connect.js updateDatasetForLogisticGroups: could not make new 0/1 attribute`);
         }
@@ -427,7 +426,7 @@ connect = {
         };
 
         try {
-            const result = await codapInterface.sendRequest(theMessage);
+            await codapInterface.sendRequest(theMessage);
         } catch (msg) {
             alert(`problem deleting dataset: ${testimate.constants.emittedDatasetName} : ${msg}`);
         }

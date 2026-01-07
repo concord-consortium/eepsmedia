@@ -4,13 +4,17 @@
  */
 :root {
     --codap-color : #72bfca;
-    --bg-body-color : lightgray;
+    --bg-body-color : #ddd;
+    --bg-darker-table-color : #bbb;
+    --bg-table-color : #eee;
     --drag-near-bg-color : #cba;
     --drag-over-bg-color : #fed;
     --drag-none-bg-color : lightblue;
-    --drag-empty-bg-color : lightgray;
+    --drag-empty-bg-color : #ddd;
     --warn-color : pink;
-    --att-bg-color : #fed
+    --att-bg-color : #fed;
+    --body-text-color : #333;
+    --bg-stripe-color : lightblue;
 
 }
 
@@ -18,7 +22,7 @@ body {
     margin : 0;
     padding : 0;
 
-    color : #333;
+    color : var(--body-text-color);
     font-family: "Sirin Stencil",sans-serif;
     font-size: small;
     min-height: 100vh;      /* make <body> fill the plugin */
@@ -105,7 +109,7 @@ summary {
 .test-results {
     border-spacing: 1.0em 0;
     font-family: "Nanum Gothic Coding", monospace;
-    background-color: #eee;
+    background-color: var(--bg-table-color);
     padding-top : 0.5em;
     padding-bottom: 0.5em;
 }
@@ -123,21 +127,13 @@ summary {
 }
 
 table tr:nth-child(odd) td{
-    background-color: #aaa;
+    background-color: var(--bg-darker-table-color);
     padding: 0.5em;
 }
 table tr:nth-child(even) td{
-    background-color: #ccc;
+    background-color: var(--bg-body-color);
     padding: 0.5em;
 }
-
-/*
-table th {  !*  headers in tables  *!
-    background-color: #ccc;
-    margin : 0;
-    padding: 0.5em;
-}
-*/
 
 /*      other classes       */
 
@@ -179,7 +175,7 @@ table th {  !*  headers in tables  *!
 #testHeaderDIV, #configureDIV  {
     width: 100%;
     display : block;
-    background-color: lightblue;
+    background-color: var(--bg-stripe-color);
     color: black;
     padding: 0.5em;
     font-size: 12px;
@@ -190,7 +186,7 @@ table th {  !*  headers in tables  *!
 #resultsDIV, #emitDIV {
     width: 100%;
     display : block;
-    background-color: lightgray;
+    background-color: var(--bg-body-color);
     color: black;
     padding: 0.5em;
     font-size: 12px;

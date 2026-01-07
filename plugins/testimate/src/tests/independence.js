@@ -98,7 +98,7 @@ class Independence extends Test {
             data.yName(), data.xName());
         out += `<br>    ${NString}, ${localize.getString("tests.fisher.columnsByRows", this.results.columnLabels.length, this.results.rowLabels.length)} `;
         out += `&chi;<sup>2</sup> = ${chisq}`;
-        out += `<br>${PString}`;
+        out += `<br>    ${PString}`;
         out += `<details id="TIdetails" ${TIopen ? "open" : ""}>`;
         out += localize.getString("tests.independence.detailsSummary");
         out += this.makeIndependenceTable();
