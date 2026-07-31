@@ -1,0 +1,6 @@
+{
+  "Choosy":    { "versionFile": "plugins/Choosy/src/choosy.js" },
+  "scrambler": { "versionFile": "plugins/scrambler/src/scrambler.js" },
+  "simmer":    { "versionFile": "plugins/simmer/src/simmer.js" },
+  "testimate": { "versionFile": "plugins/testimate/src/testimate.js" }
+}
