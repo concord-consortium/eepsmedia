@@ -121,8 +121,8 @@ undocumented; ask Tim Erickson before assuming how it works. Worth capturing her
 
 Re-establishing an automated translation pull is still open — the v2 build was the only thing
 driving it, and deployment (above) deliberately did not take it on. Note the two are coupled:
-Scrambler's `src/strings/strings.json` is a deployed artifact, and its translations sat
-undeployed for over two years because both mechanisms were missing at once.
+Scrambler's `src/strings/strings.json` is a deployed artifact, so a pull is only half the job —
+the strings do not reach users until Scrambler is tagged.
 
 ## Known Issues (all pre-existing, carried over from the monorepo)
 

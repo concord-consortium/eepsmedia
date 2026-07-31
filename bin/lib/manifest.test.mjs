@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadManifest, parseVersion, pluginNames, readVersion, repoRoot } from './manifest.mjs';
 
@@ -53,4 +53,27 @@ test('every deployable plugin yields a non-empty version', () => {
 
 test('unknown plugin throws a helpful error', () => {
   assert.throws(() => readVersion('nope'), /Unknown plugin "nope"/);
+});
+
+test('each version source has exactly one version constant', () => {
+  // parseVersion takes the FIRST match. If a second `version:` key is ever added
+  // above the constants block, the extractor would silently return the wrong
+  // value and tag validation would compare against nonsense. Fail loudly instead.
+  for (const [plugin, entry] of Object.entries(loadManifest())) {
+    const source = readFileSync(join(repoRoot, entry.versionFile), 'utf8');
+    const matches = [...source.matchAll(/version\s*:\s*(['"`])(.*?)\1/g)];
+    assert.equal(
+      matches.length,
+      1,
+      `${plugin}: expected exactly 1 version constant in ${entry.versionFile}, found ${matches.length}`
+    );
+  }
+});
+
+test('no plugin name contains a hyphen', () => {
+  // ci.yml splits the tag on the FIRST hyphen: PLUGIN="${TAG%%-*}". A hyphenated
+  // plugin directory would silently truncate the plugin name.
+  for (const plugin of pluginNames()) {
+    assert.ok(!plugin.includes('-'), `${plugin}: hyphen would break tag parsing in ci.yml`);
+  }
 });

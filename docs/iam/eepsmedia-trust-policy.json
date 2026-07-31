@@ -12,7 +12,10 @@
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
         },
         "StringLike": {
-          "token.actions.githubusercontent.com:sub": "repo:concord-consortium/eepsmedia:*"
+          "token.actions.githubusercontent.com:sub": [
+            "repo:concord-consortium@319219/eepsmedia@1318683401:*",
+            "repo:concord-consortium/eepsmedia:*"
+          ]
         }
       }
     }
