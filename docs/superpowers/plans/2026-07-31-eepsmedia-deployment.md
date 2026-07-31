@@ -182,7 +182,7 @@ test('unknown plugin throws a helpful error', () => {
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-node --test bin/lib/
+node --test 'bin/lib/*.test.mjs'
 ```
 
 Expected: FAIL — `Cannot find module .../bin/lib/manifest.mjs`
@@ -255,7 +255,7 @@ export function readVersion(plugin) {
 - [ ] **Step 5: Run tests to verify they pass**
 
 ```bash
-node --test bin/lib/
+node --test 'bin/lib/*.test.mjs'
 ```
 
 Expected: PASS — 5 tests, 0 failures.
@@ -365,7 +365,7 @@ test('skips external, fragment, and data refs', () => {
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-node --test bin/lib/
+node --test 'bin/lib/*.test.mjs'
 ```
 
 Expected: FAIL — `Cannot find module .../bin/lib/links.mjs`
@@ -415,7 +415,7 @@ export function checkPlugin(plugin) {
 - [ ] **Step 4: Run tests to verify they pass**
 
 ```bash
-node --test bin/lib/
+node --test 'bin/lib/*.test.mjs'
 ```
 
 Expected: PASS — 8 tests total (5 from Task 2, 3 here), 0 failures.
@@ -504,7 +504,7 @@ can never fail proves nothing."
 - Create: `.github/workflows/ci.yml`
 
 **Interfaces:**
-- Consumes: `node bin/check-links.mjs` (Task 3), `node bin/plugin-version.mjs <plugin>` (Task 2), `node --test bin/lib/`.
+- Consumes: `node bin/check-links.mjs` (Task 3), `node bin/plugin-version.mjs <plugin>` (Task 2), `node --test 'bin/lib/*.test.mjs'`.
 - Produces: the deploy pipeline. Nothing later depends on it programmatically.
 
 - [ ] **Step 1: Create the workflow**
@@ -539,7 +539,7 @@ jobs:
         with:
           node-version: '24'
       - name: Unit tests
-        run: node --test bin/lib/
+        run: node --test 'bin/lib/*.test.mjs'
       - name: Link check all deployable plugins
         run: node bin/check-links.mjs
 
@@ -782,7 +782,7 @@ and removes the Choosy case-mismatch known issue, which Task 1 resolved."
 - [ ] **Step 1: Run the full check suite one final time**
 
 ```bash
-node --test bin/lib/ && node bin/check-links.mjs
+node --test 'bin/lib/*.test.mjs' && node bin/check-links.mjs
 echo "exit=$?"
 ```
 
@@ -917,7 +917,7 @@ git rm -r --quiet plugins/simmer/NeilFraser-JS-Interpreter-1f48e30/
 - [ ] **Step 6: Verify nothing broke**
 
 ```bash
-node --test bin/lib/ && node bin/check-links.mjs
+node --test 'bin/lib/*.test.mjs' && node bin/check-links.mjs
 du -sh plugins/simmer
 ```
 
