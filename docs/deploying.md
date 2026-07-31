@@ -69,8 +69,8 @@ transient outage.
 everything every time is cheaper than the workarounds that flag requires.
 
 **No `--acl public-read`.** The bucket has Object Ownership enforced, where passing `--acl` fails
-outright. This follows `story-builder`'s working deploy — see [Still to do](#still-to-do) for the
-verification that confirms it.
+outright. Confirmed by the first deploy: objects are publicly readable without it — see
+[Status](#status).
 
 ## CloudFront
 
@@ -117,49 +117,50 @@ done
 Expect `x-cache: Miss from cloudfront` plus a new `last-modified` on the first request. A `Hit` with
 a stale `last-modified` after a `Completed` invalidation means you invalidated the wrong path.
 
-## Still to do
+## Status
 
-Setup is not finished. In order:
+**The pipeline is live.** The IAM role exists and the first deploy — `simmer-2026a`, 2026-07-31 —
+ran end to end: tag validated, role assumed, both trees synced, CloudFront flushed, and
+`codap.concord.org` and `codap3.concord.org` both serving `2026a`.
 
-**1. Provision the IAM role.** `arn:aws:iam::612297603577:role/eepsmedia` does not exist, and no
-deploy can run without it. See [`docs/iam/README.md`](iam/README.md) — note that the org's standard
-`create-deploy-role.sh` is *not* sufficient on its own.
+Settled by that run:
 
-**2. Ship Simmer 2026a.** Bump `constants.version` in `plugins/simmer/src/simmer.js` from `2025a` to
-`2026a`, resolving CODAP-1460. Verified: codap.xyz's `2026a` is byte-identical to this repo's
-`2025a` across all 27 other files — only the version string differs, and both already pin
-`blockly@11`. The labels diverged because the Blockly v12 crash was hotfixed without a version bump
-while Tim fixed it independently, bumped, and redeployed codap.xyz without pushing back.
+- **The `codap-resources`-only IAM policy is sufficient** — no `AccessDenied`.
+- **Omitting `--acl` is correct** — objects are publicly readable, confirming Object Ownership is
+  enforced on the bucket.
+- **`--delete` behaved exactly as predicted** — 27 deletions, all the removed vendored directory.
 
-In the same change, remove `plugins/simmer/NeilFraser-JS-Interpreter-1f48e30/` — **2.3 MB of
-Simmer's 2.6 MB**, referenced by nothing. It is an unpacked tarball of
-[NeilFraser/JS-Interpreter](https://github.com/NeilFraser/JS-Interpreter) pinned at
-`1f48e30b7736adf8f77b49a82f9d7236e9d1654a` (2023-02-14), added ten days later in `bb497b3` and never
-wired up. Upstream is still active, so anyone building Blockly step-through execution later should
-pull a current release rather than revive a 3.5-year-old snapshot. Recover with `git show bb497b3`.
+### The one-time CloudFront flush is done
 
-**3. Run the first deploy.** It is not a no-op — Scrambler has ~2 years of stranded translation
-commits and Testimate has an undeployed bugfix (`3668848`).
+Objects on S3 previously carried no `Cache-Control` at all, leaving them on heuristic freshness
+(roughly 10% of age since `Last-Modified` — weeks, for 2024-era files). All three distributions were
+invalidated at the stripped path on 2026-07-31, and both app hosts returned
+`x-cache: Miss from cloudfront` with the new `last-modified`. Anything the deploy touches now carries
+`no-cache`.
 
-- Dry-run first. Expected deletions: **exactly the 27 keys** of the removed vendored directory, and
-  nothing else.
-- Confirm objects are publicly readable, since the workflow passes no `--acl`:
-  `curl -sI https://codap-resources.concord.org/plugins/eepsmedia/plugins/simmer/index.html`
-  should return `200`. A `403` means the Object Ownership assumption was wrong — add
-  `--acl public-read` to both sync steps.
-- Invalidate CloudFront **once**. Objects currently on S3 carry no `Cache-Control` at all, so they
-  are subject to heuristic freshness (roughly 10% of age since `Last-Modified` — for 2024-era files,
-  weeks). This one-time flush is what puts them under `no-cache`.
+### Still open
 
-**4. Verify the no-invalidation claim.** On the *second* deploy, skip the invalidation and confirm
-the edge still serves new content. This is load-bearing — it is the entire reason the workflow needs
+**Verify the no-invalidation claim.** On the *next* deploy, skip the invalidation and confirm the
+edge still serves the new content. This is load-bearing — it is the entire reason the workflow needs
 no CloudFront permissions. If it does not hold, add `cloudfront:CreateInvalidation` on all three
 distributions to the role and invalidate on every deploy.
+
+### The other three plugins are already current
+
+Content-compared against S3 on 2026-07-31: `Choosy` and `testimate` are byte-identical, and
+`scrambler` differs only in `package.json` — a dev-only file the plugin never loads. They need a tag
+only when they next actually change.
+
+> An earlier version of this document claimed Scrambler had "~2 years of stranded translations" and
+> Testimate an undeployed bugfix. **Both were wrong.** That came from comparing `index.html` upload
+> dates on S3 against git-log dates — but `index.html` does not change when `src/` or `strings/` do,
+> so its timestamp says nothing about whether the rest of the plugin is current. Scrambler's
+> `strings.json` had in fact been hand-synced on 2025-12-30. **Compare content, not timestamps.**
 
 ## Not covered here
 
 **POEditor synchronization.** Scrambler's pull still works standalone
 (`cd plugins/scrambler && npm install && npm run strings:pull`); Testimate's procedure is
 undocumented. See [CLAUDE.md](../CLAUDE.md#internationalization). The two are coupled: Scrambler's
-`src/strings/strings.json` is a deployed artifact, and its translations sat unshipped for two years
-because both mechanisms were missing at once.
+`src/strings/strings.json` is a deployed artifact, so pulling strings is only half the job — they
+do not reach users until Scrambler is tagged.
