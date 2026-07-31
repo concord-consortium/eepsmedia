@@ -119,37 +119,62 @@ a stale `last-modified` after a `Completed` invalidation means you invalidated t
 
 ## Status
 
-**The pipeline is live.** The IAM role exists and the first deploy — `simmer-2026a`, 2026-07-31 —
-ran end to end: tag validated, role assumed, both trees synced, CloudFront flushed, and
-`codap.concord.org` and `codap3.concord.org` both serving `2026a`.
+**The pipeline is live, and all four plugins have been deployed through it.** On 2026-07-31 each was
+tagged at its then-current version and deployed end to end:
 
-Settled by that run:
+| Tag | Notes |
+|---|---|
+| `simmer-2026a` | First deploy. Version bump + vendored-code removal (CODAP-1460). |
+| `Choosy-2021m` | Exercised the capitalized directory on a case-sensitive Linux runner. |
+| `scrambler-1.7` | Also brought S3's stale dev-only `package.json` into line. |
+| `testimate-2026e` | No content change; header fix only. |
+
+The last three were tagged at their existing versions deliberately — not to mark a change, but to
+put every plugin's files under `Cache-Control: no-cache` (see below) and to prove each plugin's
+deploy path works.
+
+Settled by these runs:
 
 - **The `codap-resources`-only IAM policy is sufficient** — no `AccessDenied`.
 - **Omitting `--acl` is correct** — objects are publicly readable, confirming Object Ownership is
   enforced on the bucket.
 - **`--delete` behaved exactly as predicted** — 27 deletions, all the removed vendored directory.
 
-### The one-time CloudFront flush is done
+### The invalidation debt is cleared — permanently
 
 Objects on S3 previously carried no `Cache-Control` at all, leaving them on heuristic freshness
-(roughly 10% of age since `Last-Modified` — weeks, for 2024-era files). All three distributions were
-invalidated at the stripped path on 2026-07-31, and both app hosts returned
-`x-cache: Miss from cloudfront` with the new `last-modified`. Anything the deploy touches now carries
-`no-cache`.
+(roughly 10% of age since `Last-Modified` — weeks, for 2024-era files). **Every file under
+`plugins/eepsmedia/` now carries `no-cache`**, and all three distributions were invalidated at the
+stripped path after the last deploy. Both app hosts serve `cache-control: no-cache` for all four
+plugins.
 
-### Still open
+**No future deploy should need an invalidation.** That was previously an assumption; it has now been
+verified — see below.
 
-**Verify the no-invalidation claim.** On the *next* deploy, skip the invalidation and confirm the
-edge still serves the new content. This is load-bearing — it is the entire reason the workflow needs
-no CloudFront permissions. If it does not hold, add `cloudfront:CreateInvalidation` on all three
-distributions to the role and invalidate on every deploy.
+### Verified: `no-cache` is honored, so deploys need no invalidation
 
-### The other three plugins are already current
+This was the load-bearing assumption behind the workflow having no CloudFront permissions at all.
+Measured directly against `codap3.concord.org`:
 
-Content-compared against S3 on 2026-07-31: `Choosy` and `testimate` are byte-identical, and
-`scrambler` differs only in `package.json` — a dev-only file the plugin never loads. They need a tag
-only when they next actually change.
+```
+req at t+0s:  x-cache: RefreshHit from cloudfront
+req at t+2s:  x-cache: RefreshHit from cloudfront
+req at t+4s:  x-cache: RefreshHit from cloudfront
+```
+
+`RefreshHit` means CloudFront revalidated with the origin before serving. It does that on **every**
+request, so a deploy is picked up immediately.
+
+**One wrinkle worth knowing**, because it looks alarming: requests issued within the same second
+return a plain `Hit from cloudfront` — served from cache with no revalidation. That is the cache
+policy's `MinTTL: 1` (policy `S3-CORS`: MinTTL 1, DefaultTTL 86400, MaxTTL 31536000), which forces a
+minimum 1-second cache regardless of origin headers. A one-second staleness window is irrelevant to
+deploys. If you test this by firing several `curl`s in a row you will see `Hit` and may wrongly
+conclude `no-cache` is being ignored — **space the requests more than a second apart.**
+
+> Note a re-deploy of *unchanged* content cannot test this: identical bytes produce an identical
+> ETag, so revalidation returns `304` and the edge serves its cached copy either way. Observing
+> `RefreshHit` is the meaningful signal, not a changed `last-modified`.
 
 > An earlier version of this document claimed Scrambler had "~2 years of stranded translations" and
 > Testimate an undeployed bugfix. **Both were wrong.** That came from comparing `index.html` upload
