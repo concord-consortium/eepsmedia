@@ -35,22 +35,49 @@ common/           shared libraries used by all plugins
   jquery/         vendored jQuery + jQuery UI
   sweetalert2/    vendored
 plugins/
-  choosy/ lotti/ norma/ scrambler/ simmer/ testimate/
+  Choosy/ lotti/ norma/ scrambler/ simmer/ testimate/
 ```
+
+`Choosy` is capitalized deliberately: S3, CODAP's `standard-plugins.json`, and saved documents all
+use that spelling, so the repo matches. The other five are lowercase.
 
 Plugins reference shared code with `../../common/...` from their `index.html`, which resolves to
 `common/` at the repo root. This worked identically inside the monorepo — nothing referenced the
 monorepo's root-level `Common/` (capital C), which is a *separate* copy used by non-EEPS plugins.
 
-## Deployment (unresolved — active work)
+## Deployment
 
-These plugins historically shipped as part of the CODAP **V2** build: the monorepo's `bin/build`
-copied them into a release zip. For **V3**, updates have been deployed by piggy-backing on a V2
-build and manually copying files to the V3 S3 destination.
+Plugins deploy to `s3://codap-resources/plugins/eepsmedia/`, which mirrors this repo's root
+exactly — `common/` and `plugins/<name>/` beneath it. There is no build step, so the repo *is*
+the artifact.
 
-With no more V2 builds planned, this repo needs its own deployment mechanism. That decision is
-open. Because there's no build step, the question is only how static files reach S3/CODAP — not
-how to build them.
+**To deploy a plugin:** bump its `constants.version`, then push a tag `<directory>-<version>`:
+
+```bash
+git tag simmer-2026a && git push origin simmer-2026a
+```
+
+`.github/workflows/ci.yml` validates the tag against the plugin's `constants.version`, then syncs
+`plugins/<name>/` and `common/` to S3. A mismatch fails the build — you cannot deploy without
+bumping the version. Use the workflow's `workflow_dispatch` input to re-deploy an existing tag.
+
+The deployable set is defined by the keys of `.github/deploy-manifest.json`: `Choosy`, `scrambler`,
+`simmer`, `testimate`. `norma` and `lotti` are deliberately absent and do not deploy.
+
+Everything is uploaded with `Cache-Control: no-cache`, so browsers revalidate via ETag and pick up
+changes on the next load. Steady-state deploys need no CloudFront invalidation.
+
+Local checks (no dependencies, Node 24):
+
+```bash
+node --test 'bin/lib/*.test.mjs'   # unit tests
+node bin/check-links.mjs           # link-check all deployable plugins
+node bin/plugin-version.mjs simmer # print a plugin's constants.version
+```
+
+**Deploys are blocked until the IAM role exists** — see `docs/iam/README.md`. Design rationale, the
+first-deploy procedure, and `--delete` semantics are in
+`docs/superpowers/specs/2026-07-31-eepsmedia-deployment-design.md`.
 
 Corresponding cleanup still pending in the `codap-data-interactives` monorepo:
 - `bin/build` — remove eepsmedia from `STATIC_PLUGIN_DIRS` and `HIDDEN_DIRS`
@@ -92,17 +119,18 @@ undocumented; ask Tim Erickson before assuming how it works. Worth capturing her
 
 **Lotti and Norma** carry per-language JSON under `strings/` with no evident POEditor wiring.
 
-Re-establishing a translation pull for this repo is part of the deployment work below — the v2
-build was the only thing driving it.
+Re-establishing an automated translation pull is still open — the v2 build was the only thing
+driving it, and deployment (above) deliberately did not take it on. Note the two are coupled:
+Scrambler's `src/strings/strings.json` is a deployed artifact, and its translations sat
+undeployed for over two years because both mechanisms were missing at once.
 
 ## Known Issues (all pre-existing, carried over from the monorepo)
 
 - `plugins/lotti/index.html:27-29` loads `../common/iframe-phone.js` (and two siblings), which
   resolves to `plugins/common/` — a directory that does not exist. Almost certainly should be
   `../../common/`. Lotti ships nowhere, so this has gone unnoticed.
-- **Case mismatch:** the monorepo refers to `plugins/Choosy` (capital C) but the directory is
-  `choosy`. This works only because macOS is case-insensitive and would break a Linux build.
-  Worth settling on one spelling here.
+  `bin/check-links.mjs` detects this — run `node bin/check-links.mjs lotti` to see the three
+  broken refs. lotti is not in the deploy manifest, so CI does not check it.
 - `common/src/kcpcommon.css` and `common/src/dsg.css` reference `../img/*.png` and
   `../art/pause.png` that don't exist. Both files are referenced by nothing in this repo — dead.
 - `plugins/scrambler/bin/pull-dev-strings:12` expects a sibling CODAP checkout at a path that no
