@@ -22,6 +22,11 @@ Only two plugins have a `package.json`, and neither builds anything:
 - `plugins/scrambler/package.json` — `strings:pull*` scripts only (i18n, see below)
 - `plugins/lotti/package.json` — a stub with no dependencies
 
+There *is* Node tooling in `bin/`, but it is deploy tooling, not a build: it validates versions and
+checks links, and never produces or transforms a deployed file. It has **no dependencies** and no
+root `package.json` — it uses only Node's standard library and built-in test runner, so there is
+nothing to `npm install` at the repo root.
+
 (If you've read the monorepo's CLAUDE.md, note that its "Webpack + vanilla JS" description of
 Scrambler/Testimate/Simmer is stale and was never true of this code.)
 
@@ -36,6 +41,15 @@ common/           shared libraries used by all plugins
   sweetalert2/    vendored
 plugins/
   Choosy/ lotti/ norma/ scrambler/ simmer/ testimate/
+bin/              deploy tooling (no dependencies)
+  lib/            manifest.mjs, links.mjs + their *.test.mjs
+  check-links.mjs, plugin-version.mjs
+docs/
+  deploying.md    operator guide: --delete semantics, caching, CloudFront
+  iam/            deploy role setup, policy documents
+.github/
+  deploy-manifest.json    the deployable set
+  workflows/ci.yml        check + deploy jobs
 ```
 
 `Choosy` is capitalized deliberately: S3, CODAP's `standard-plugins.json`, and saved documents all
@@ -75,9 +89,12 @@ node bin/check-links.mjs           # link-check all deployable plugins
 node bin/plugin-version.mjs simmer # print a plugin's constants.version
 ```
 
-**Deploys are blocked until the IAM role exists** — see `docs/iam/README.md`. Design rationale, the
-first-deploy procedure, and `--delete` semantics are in
-`docs/deploying.md`.
+The pipeline is live — first deploy was `simmer-2026a` on 2026-07-31. Operational detail
+(`--delete` semantics, caching rationale, the CloudFront stripped-path gotcha) is in
+`docs/deploying.md`; the deploy role and its two non-obvious traps are in `docs/iam/README.md`.
+
+**If a deploy ever fails at "Could not assume role with OIDC", it is almost certainly not a
+permissions problem** — see the immutable subject claim section of `docs/iam/README.md`.
 
 Corresponding cleanup still pending in the `codap-data-interactives` monorepo:
 - `bin/build` — remove eepsmedia from `STATIC_PLUGIN_DIRS` and `HIDDEN_DIRS`
