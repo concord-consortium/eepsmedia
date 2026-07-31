@@ -249,7 +249,40 @@ because nothing checks. Running on Linux, it also catches case errors that macOS
 
 ## Implementation
 
-### Repo changes
+### Rollout sequence
+
+Two PRs, in order. The split matters: **the infrastructure PR deliberately changes no deployable
+plugin bytes.** Under this design a plugin content change cannot ship until that plugin is tagged,
+so bundling content changes into the infrastructure PR would leave the repo and S3 diverged, waiting
+on an unrelated tag to reconcile them.
+
+**PR 1 — infrastructure.** The Choosy rename, `ci.yml`, the manifest, the link checker, and the
+CLAUDE.md rewrite. Self-verifying without deploying anything: the link check must go green against
+all four plugins. The Choosy rename is content-neutral — the bytes under it are unchanged, and the
+path afterwards matches what S3 already holds, so no deploy is needed to reconcile it.
+
+*Gate: `role/eepsmedia` must exist before anything can actually deploy.*
+
+**PR 2 — Simmer, and the first live test of the mechanism.** Bump `constants.version` from `2025a`
+to `2026a` (resolving CODAP-1460) and `git rm -r plugins/simmer/NeilFraser-JS-Interpreter-1f48e30/`.
+Then push tag `simmer-2026a`.
+
+This is a well-chosen first test because it exercises every part of the mechanism at once:
+
+| Mechanism | Exercised by |
+|---|---|
+| Tag parsing and manifest lookup | `simmer-2026a` → `plugins/simmer/src/simmer.js` |
+| Version validation | Passes only because the constant was bumped in the same PR |
+| Link checker | Must stay green after 2.3 MB is deleted |
+| Sync of real changed content | The version bump |
+| `--delete` | Exactly 27 expected deletions, and no others |
+| First-deploy procedure | One-time CloudFront invalidation and edge verification |
+
+The blast radius is also unusually well understood: Simmer's code is byte-identical to what
+codap.xyz already serves, so a successful deploy gives users precisely what Tim's own deploy has
+been serving for a month. That makes it a low-risk way to prove a high-risk pipeline.
+
+### Repo changes (PR 1)
 
 | Change | Notes |
 |---|---|
@@ -257,8 +290,23 @@ because nothing checks. Running on Linux, it also catches case errors that macOS
 | `.github/workflows/ci.yml` | Check + deploy jobs, as above. |
 | `.github/deploy-manifest.json` | Plugin → version source file. |
 | `bin/check-links.mjs` | Link checker. |
-| `git rm -r plugins/simmer/NeilFraser-JS-Interpreter-1f48e30/` | Remove dead vendored code — see below. |
 | `CLAUDE.md` | Rewrite the "Deployment (unresolved — active work)" section; remove the case-mismatch entry from Known Issues. |
+
+**The Choosy rename.** S3 contains exactly one spelling — `plugins/eepsmedia/plugins/Choosy/`,
+capital C, with no lowercase variant — and V3's `standard-plugins.json` and saved documents both
+point there. The repo directory is `choosy`. This *must* be resolved rather than papered over:
+GitHub Actions runs on Linux, which is case-sensitive, and the monorepo's `rsync` from `Choosy/`
+only ever worked because macOS is not.
+
+Renaming the directory is internally free — verified that no capital-`Choosy` reference exists
+anywhere in the repo except CLAUDE.md prose, and the plugin's own asset paths are all relative.
+
+### The Simmer PR (PR 2)
+
+| Change | Notes |
+|---|---|
+| `constants.version`: `2025a` → `2026a` in `plugins/simmer/src/simmer.js` | Resolves CODAP-1460. Required for tag `simmer-2026a` to validate. |
+| `git rm -r plugins/simmer/NeilFraser-JS-Interpreter-1f48e30/` | Remove dead vendored code — see below. |
 
 **Removing the vendored JS-Interpreter.** `plugins/simmer/NeilFraser-JS-Interpreter-1f48e30/` is
 **2.3 MB of Simmer's 2.6 MB** and is referenced by nothing anywhere in the repo.
@@ -280,15 +328,6 @@ Removing it is safe and reversible: `git show bb497b3` recovers it, and anyone b
 execution later should pull a current release from the live upstream rather than revive a stale
 snapshot. The commit message should record the upstream URL and pinned SHA so that intent is not
 lost. The first Simmer deploy then cleans all 27 keys from S3 in the same pass.
-
-**The Choosy rename.** S3 contains exactly one spelling — `plugins/eepsmedia/plugins/Choosy/`,
-capital C, with no lowercase variant — and V3's `standard-plugins.json` and saved documents both
-point there. The repo directory is `choosy`. This *must* be resolved rather than papered over:
-GitHub Actions runs on Linux, which is case-sensitive, and the monorepo's `rsync` from `Choosy/`
-only ever worked because macOS is not.
-
-Renaming the directory is internally free — verified that no capital-`Choosy` reference exists
-anywhere in the repo except CLAUDE.md prose, and the plugin's own asset paths are all relative.
 
 ### First deploy procedure
 
