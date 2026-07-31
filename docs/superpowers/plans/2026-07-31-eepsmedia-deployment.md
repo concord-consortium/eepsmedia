@@ -801,7 +801,7 @@ Expected: only `plugins/choosy/... => plugins/Choosy/...` rename lines, with `0 
 - [ ] **Step 3: Push and open the PR**
 
 ```bash
-git push -u origin deploy-design
+git push -u origin CODAP-1423-deploy-design
 ```
 
 **Write the PR body to a file using your editor, then pass it with `--body-file`.** Do NOT use a
