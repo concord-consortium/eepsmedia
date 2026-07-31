@@ -159,6 +159,30 @@ carries a specific risk — deleting a file that some *other* plugin still refer
 precisely what the link checker catches, and why it runs against all four plugins on every push
 rather than only against the plugin being deployed.
 
+### `--delete` semantics and verified safety
+
+`--delete` is the one flag in this design capable of damaging production, so its behaviour was
+verified empirically against the live bucket with `--dryrun` rather than assumed.
+
+**Verified: there are currently zero orphans.** Dry runs of all four plugins and `common/` against
+their S3 destinations report **0 deletions** in every case. S3 holds nothing the repo does not.
+`--delete` can therefore only ever remove what is deliberately removed from the repo.
+
+**`--exclude` does NOT protect against orphans — it creates them.** The exclude filter applies to
+the *destination* listing as well as the source, so excluded keys are invisible to `--delete` and
+are left on S3 permanently. Verified:
+
+| Sync of `plugins/simmer/` | Deletions |
+|---|---|
+| `--delete` | 0 — the vendored dir exists in the source, so nothing is orphaned |
+| `--delete --exclude "NeilFraser-JS-Interpreter-1f48e30/*"` | 0 — excluded keys are skipped on *both* sides |
+| `--delete`, with the directory removed from the repo | 27 — exactly that directory, nothing else |
+
+The practical consequence: **excluding a directory stops it being uploaded but strands whatever is
+already on S3 forever.** Removing it from the repo is the only approach that both stops the upload
+and cleans the bucket. This is counter-intuitive enough to be worth stating explicitly — the
+tidy-looking fix is the one that silently leaves orphans.
+
 ### Caching
 
 Everything deploys with `Cache-Control: no-cache`, uniformly — no per-file-type split, and
@@ -233,7 +257,29 @@ because nothing checks. Running on Linux, it also catches case errors that macOS
 | `.github/workflows/ci.yml` | Check + deploy jobs, as above. |
 | `.github/deploy-manifest.json` | Plugin → version source file. |
 | `bin/check-links.mjs` | Link checker. |
+| `git rm -r plugins/simmer/NeilFraser-JS-Interpreter-1f48e30/` | Remove dead vendored code — see below. |
 | `CLAUDE.md` | Rewrite the "Deployment (unresolved — active work)" section; remove the case-mismatch entry from Known Issues. |
+
+**Removing the vendored JS-Interpreter.** `plugins/simmer/NeilFraser-JS-Interpreter-1f48e30/` is
+**2.3 MB of Simmer's 2.6 MB** and is referenced by nothing anywhere in the repo.
+
+It is an unpacked GitHub tarball (hence the `owner-repo-shortsha` directory name, and the absence of
+a `.git`) of [NeilFraser/JS-Interpreter](https://github.com/NeilFraser/JS-Interpreter) — "a sandboxed
+JavaScript interpreter in JavaScript", Apache-2.0, by the creator of Blockly. It is Blockly's
+companion library for stepping through generated code while highlighting blocks as they execute.
+
+- Pinned at upstream commit `1f48e30b7736adf8f77b49a82f9d7236e9d1654a`, dated **2023-02-14**.
+- Added in `bb497b3` ("Added `simmer`") on **2023-02-24**, ten days later.
+
+So it was downloaded fresh while Simmer was first being built, evidently for the standard Blockly
+step-through integration, and never wired up. It has been dormant for 3.5 years while upstream stayed
+active (last push 2026-06-17). Tim does not deploy it either — every file in it 404s on
+`codap.xyz/plugins/simmer/`.
+
+Removing it is safe and reversible: `git show bb497b3` recovers it, and anyone building step-through
+execution later should pull a current release from the live upstream rather than revive a stale
+snapshot. The commit message should record the upstream URL and pinned SHA so that intent is not
+lost. The first Simmer deploy then cleans all 27 keys from S3 in the same pass.
 
 **The Choosy rename.** S3 contains exactly one spelling — `plugins/eepsmedia/plugins/Choosy/`,
 capital C, with no lowercase variant — and V3's `standard-plugins.json` and saved documents both
@@ -249,8 +295,11 @@ anywhere in the repo except CLAUDE.md prose, and the plugin's own asset paths ar
 The first deploy ships real pending work, so it gets a one-time procedure:
 
 1. **Dry-run each plugin manually** (`aws s3 sync --dryrun`) and review the diff before any tag
-   exists. Top-level file sets already match for all four, so `--delete` looks safe — but
-   subdirectories are unverified, and `--delete` is the one flag that can wipe production.
+   exists. This has already been done once and returned **0 orphans across all four plugins and
+   `common/`** (see [`--delete` semantics and verified safety](#--delete-semantics-and-verified-safety)),
+   so the expected deletions on the first real deploy are exactly the 27 keys of the removed
+   vendored JS-Interpreter directory — and nothing else. Anything beyond that is a red flag: stop
+   and investigate rather than proceeding.
 2. **Tag and deploy.** Scrambler picks up ~2 years of stranded translations; Testimate picks up
    `3668848`.
 3. **One-time CloudFront invalidation**, all three distributions, at the **stripped** path
@@ -309,6 +358,17 @@ were pulled, committed, and then had nowhere to go.
 
 ## Open items
 
+- **CODAP-1460 is the first real exercise of this design.** The ticket reports that CODAP's plugin
+  menu opens Simmer `2025a` while codap.xyz serves `2026a`, and infers codap.xyz has newer code.
+  Verified: it does not. Of the 28 files under `src/`, `strings/`, `css/`, and `art/`, 27 are
+  byte-identical, and the only difference is the version string on `src/simmer.js:242`. Both serve
+  `blockly@11`. The labels diverged because the Blockly v12 crash was hotfixed directly in
+  `codap-data-interactives` without a version bump (`0aee332` touched only `index.html`), while Tim
+  fixed it independently, bumped to `2026a`, and redeployed codap.xyz without pushing back.
+  The fix is therefore one line — bump `constants.version` to `2026a` — plus a deploy. Findings are
+  recorded on the ticket. Note this also shows the guard working in the direction that matters:
+  under this design the hotfix could not have shipped without a tag, and the tag could not have
+  existed without a version bump.
 - **Scrambler's version is inconsistent** — `1.7` in source, `1.6.0` in `package.json`, and a
   semver-ish scheme where every other plugin uses year-letter. Flagged, deliberately not changed:
   it is Tim's to decide, not a side effect of setting up deploys. Note the validator reads the
