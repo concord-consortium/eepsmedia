@@ -77,7 +77,7 @@ node bin/plugin-version.mjs simmer # print a plugin's constants.version
 
 **Deploys are blocked until the IAM role exists** — see `docs/iam/README.md`. Design rationale, the
 first-deploy procedure, and `--delete` semantics are in
-`docs/superpowers/specs/2026-07-31-eepsmedia-deployment-design.md`.
+`docs/deploying.md`.
 
 Corresponding cleanup still pending in the `codap-data-interactives` monorepo:
 - `bin/build` — remove eepsmedia from `STATIC_PLUGIN_DIRS` and `HIDDEN_DIRS`
@@ -135,6 +135,11 @@ undeployed for over two years because both mechanisms were missing at once.
   `../art/pause.png` that don't exist. Both files are referenced by nothing in this repo — dead.
 - `plugins/scrambler/bin/pull-dev-strings:12` expects a sibling CODAP checkout at a path that no
   longer makes sense post-extraction. Dev-only script, not part of any deploy.
+- **Scrambler's version is inconsistent and uses a different scheme.** `src/scrambler.js` says
+  `1.7` while `package.json` says `1.6.0`, and every other plugin uses a year-letter scheme
+  (`2026e`, `2025a`, …). Deliberately left alone — it's Tim's to decide. Note the deploy validator
+  reads the *source* constant, so `package.json`'s number never affects a deploy; a Scrambler tag
+  is `scrambler-1.7`.
 - `norma` was registered in the monorepo's plugin map but never copied into a release; `lotti` was
   referenced nowhere at all. Decide whether either is still wanted.
 

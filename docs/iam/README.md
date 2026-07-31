@@ -77,4 +77,4 @@ Expect the ARN `arn:aws:iam::612297603577:role/eepsmedia`, a `sub` condition of
 attached managed policies.
 
 The real test is the first tagged deploy — see the first-deploy procedure in
-`docs/superpowers/specs/2026-07-31-eepsmedia-deployment-design.md`.
+`docs/deploying.md`.

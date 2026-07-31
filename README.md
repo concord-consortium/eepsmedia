@@ -42,7 +42,7 @@ common/           shared libraries used by every plugin
 plugins/
   Choosy/ lotti/ norma/ scrambler/ simmer/ testimate/
 bin/              deploy tooling (link checker, version extraction)
-docs/             design docs and IAM setup
+docs/             deployment guide and IAM role setup
 ```
 
 Plugins reference shared code as `../../common/...` from their `index.html`, which resolves to
@@ -92,7 +92,7 @@ mismatch, so a release can never ship with a stale version number. It then syncs
 `common/` to `s3://codap-resources/plugins/eepsmedia/`.
 
 Full details in [CLAUDE.md](CLAUDE.md#deployment); design rationale and the first-deploy procedure
-in [the design doc](docs/superpowers/specs/2026-07-31-eepsmedia-deployment-design.md).
+in [docs/deploying.md](docs/deploying.md).
 
 ## Internationalization
 
