@@ -74,12 +74,18 @@ outright. Confirmed by the first deploy: objects are publicly readable without i
 
 ## CloudFront
 
-**Steady-state deploys need no invalidation.** CloudFront honours `Cache-Control: no-cache` by
-revalidating with the origin, so once objects carry that header, new content is served immediately.
-This is why the deploy role needs no CloudFront permissions at all.
+**Deploys need no invalidation. Not the first one for a plugin, not any of them.** CloudFront
+honours `Cache-Control: no-cache` by revalidating with the origin, and every file under
+`plugins/eepsmedia/` already carries that header. This is why the deploy role needs no CloudFront
+permissions at all, and why the workflow has no invalidation step.
 
-If you ever do need to invalidate, there are three distributions and **the path is not the one you
-would expect**:
+> Earlier versions of this document described a one-time invalidation needed the first time each
+> plugin deployed. That is **done and no longer applies** — it was only ever required to migrate
+> objects off the header-less state they were left in by the old manual copies. All four plugins
+> were migrated on 2026-07-31. There is nothing left to remember.
+
+The commands below are kept for the rare case of needing a manual flush — a bad upload, or an
+object that somehow lands without the right header. **The path is not the one you would expect**:
 
 | Distribution | Serves | Invalidation path |
 |---|---|---|
@@ -148,8 +154,8 @@ Objects on S3 previously carried no `Cache-Control` at all, leaving them on heur
 stripped path after the last deploy. Both app hosts serve `cache-control: no-cache` for all four
 plugins.
 
-**No future deploy should need an invalidation.** That was previously an assumption; it has now been
-verified — see below.
+**No future deploy needs an invalidation.** That was previously an assumption; it has now been
+measured — see below.
 
 ### Verified: `no-cache` is honored, so deploys need no invalidation
 

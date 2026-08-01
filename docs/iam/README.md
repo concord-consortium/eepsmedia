@@ -149,9 +149,9 @@ meaning for the `models-resources` managed policy we are deliberately not attach
   `plugins/eepsmedia/common/`, both under `plugins/eepsmedia/*`.
 - **No `s3:GetObject` is needed.** `aws s3 sync` from local to S3 compares against the bucket
   listing and never downloads. `story-builder`'s equivalent policy omits it too.
-- **No `s3:PutObjectAcl`.** The workflow deliberately passes no `--acl`; the bucket has Object
-  Ownership enforced. If the first deploy fails on an ACL error, that assumption was wrong — see the
-  first-deploy procedure in the design doc.
+- **No `s3:PutObjectAcl`.** The workflow deliberately passes no `--acl`, because the bucket has
+  Object Ownership enforced. Confirmed by the deploys on 2026-07-31: objects are publicly readable
+  without it.
 
 ## Verify
 

@@ -91,8 +91,8 @@ CI validates the tag against the version constant in the source and refuses to d
 mismatch, so a release can never ship with a stale version number. It then syncs the plugin and
 `common/` to `s3://codap-resources/plugins/eepsmedia/`.
 
-Full details in [CLAUDE.md](CLAUDE.md#deployment); design rationale and the first-deploy procedure
-in [docs/deploying.md](docs/deploying.md).
+Full details in [CLAUDE.md](CLAUDE.md#deployment); operational detail — `--delete` semantics,
+caching rationale, CloudFront — in [docs/deploying.md](docs/deploying.md).
 
 ## Internationalization
 
