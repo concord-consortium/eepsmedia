@@ -79,7 +79,7 @@ The deployable set is defined by the keys of `.github/deploy-manifest.json`: `Ch
 `simmer`, `testimate`. `norma` and `lotti` are deliberately absent and do not deploy.
 
 Everything is uploaded with `Cache-Control: no-cache`, so browsers revalidate via ETag and pick up
-changes on the next load. Steady-state deploys need no CloudFront invalidation.
+changes on the next load. **No deploy needs a CloudFront invalidation** — verified, not assumed.
 
 Local checks (no dependencies, Node 24):
 
