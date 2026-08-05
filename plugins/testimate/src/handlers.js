@@ -213,6 +213,7 @@ const handlers = {
         const theTest = testimate.theTest;
         console.log(`N = ${theTest.results.N}, P = ${theTest.results.P}`);
         await connect.emitTestData({});
+        testimate.state.sequenceNumber++;
     },
 
     /**
@@ -225,10 +226,14 @@ const handlers = {
         for (let i = 0; i < testimate.state.randomEmitNumber; i++) {
             await connect.rerandomizeSource(testimate.state.dataset.name);
             await testimate.refreshDataAndTestResults();     //  recompute before emitting
-            await this.emitSingle();
+            await connect.emitTestData({});
+
+            // await this.emitSingle();
         }
 
         testimate.iteratingRandom = false;  //  clear the flag
+        testimate.state.sequenceNumber++;
+
         testimate.refreshDataAndTestResults();
     },
 
@@ -252,6 +257,7 @@ const handlers = {
             }
         }
 
+        testimate.state.sequenceNumber++;
         await testimate.refreshDataAndTestResults();
     },
 
