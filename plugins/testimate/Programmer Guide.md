@@ -98,7 +98,7 @@ storing results in an object `theTest.results`.
 
 Each test (and its associated estimate, if any) is represented 
 by a class that inherits from `Test`. 
-In that file (`src/Test.js`) is a static menber, `Test.configs`, 
+In that file (`src/Test.js`) is a static member, `Test.configs`, 
 which is an object whose keys are...well, here's one:
 
 ```
@@ -364,7 +364,7 @@ Key ideas:
 `testimate.state.focusGroupDictionary`.
 * Users can advance the focus group to the next possible value.
 * If the desired value is not available, we look first
-at the dictionary, and if it's not there, we default back to teh first value.
+at the dictionary, and if it's not there, we default back to the first value.
 
 
 In a number of tests with categorical attributes,
@@ -428,27 +428,6 @@ In `data.makeXandYArrays()`, the method calls `testimate.setFocusGroup()`
 _again_, with a null suggested value.
 `testimate` returns the newly-set dictionary value.
 
-### Two-sample t, special note
-
-In late 2025, at the suggestion of Lee Creighton, we changed from the ordinary
-Student's _t_ test to Welch's, which does not assume nearly-equal variances.
-
-Information about Welch is easily found in Wikipedia,
-but I found this description of the calculation clearer:
-https://stataiml.com/posts/welch_t_test_r/.
-
-Lee provided these pithy quotes:
-
-* “Our advice: Never use the pooled t procedures if you have software that will carry out [the unpooled version]." 
-(Starnes Tabor Yates and Moore _The Practice of Statistics_ 5th edition, p. 650)
-*  “So when should you use pooled-t methods rather than two-sample t methods? Never. What never? Well, hardly ever.”
-(Deveaux and Velleman’s _Intro Stats_, p. 464)
-* ”[The pooled t] was widely used in the past, but has fallen into some disfavor 
-because it is quite sensitive to departures from the assumption of equal population variances…In general, 
-the two-sample t procedure is a better choice than the pooled t test.”
-(Peck Olsen and Devore _Introduction to Statistics & Data Analysis_ 5th edition, p. 572)
-
-
 ## Communicating with CODAP
 
 * User drops attributes into drop-target objects in the UI. 
@@ -459,7 +438,7 @@ CODAP file.
 * In the case of multiple, repeated sampling and testing,
 this requires interacting with `rerandomize`. 
 
-## Emitting data into CODAP
+### Emitting data into CODAP
 
 The user can emit test results into CODAP.
 This creates a new dataset with attributes that contain 
@@ -477,7 +456,7 @@ With `hierarchy`, the plugin performs the test once
 for every case in the top level of the hierarchy. 
 This option does not appear if the dataset is flat or of there is only one case at the top.
 
-## Getting and using CODAP data
+### Getting and using CODAP data
 
 CODAP data is case-based. 
 If you get a set of CODAP *items*, they come as an array of objects,
@@ -594,7 +573,7 @@ This involves several nitty-gritty steps such as,
 if the test requires numeric attributes (e.g., difference of means),
 it replaces any non-numeric values with `null`.
 
-### Performing the tests
+## Performing the tests
 
 Every test has an `updateTestResults()` method (also called by `testimate.refreshDataAndTestResults()`).
 Those methods use the `theArray` members to get the data. 
