@@ -115,18 +115,30 @@ class Logistic extends Test {
         testimate.OKtoRespondToCaseChanges = true;
     }
 
+    /**
+     * Two different formula strings.
+     * One is for the screen, and uses ui.numberToString() to make it friendly
+     * The other is to be copied, and has all the precision you could ever get.
+     *
+     * @returns {{screenFormula: string, copyFormula: string}}
+     */
     makeFormulaStrings() {
-        const longSlope = this.results.LSlope;
-        const shortSlope = ui.numberToString(this.results.LSlope, 4);
-        const shortPos = ui.numberToString(this.results.pos, 4);
-        const longPos = this.results.pos;
+        /*
+        We distinguish, here, between strings intended for the screen (shorter,  using `ui.numberToString()`)
+        and those that are to be sent to the clipboard, which can have as many digits as needed.
 
-        //  shortFormula is for screen display, so has the attribute name
-        //  longFormula is for actual use, and uses "x". Avoids trying to insert backtick...
-        const shortFormula = `1/(1 + e^(-4 * ${shortSlope} * (${data.yName()} - ${shortPos})))`;
-        const longFormula = `1/(1 + e^(-4 * ${longSlope} * (x - ${longPos})))`;
+        this is analogous to the treatment in regression.js and the regression test for slope.
+         */
+        const copySlope = this.results.LSlope;
+        const screenSlope = ui.numberToString(this.results.LSlope, 4);
+        const screenPos = ui.numberToString(this.results.pos, 4);
+        const copyPos = this.results.pos;
 
-        return {shortFormula, longFormula};
+        //  copyFormula is for actual use, and uses "x". This avoids trying to insert backtick...
+        const screenFormula = `1/(1 + e^(-4 * ${screenSlope} * (${data.yName()} - ${screenPos})))`;
+        const copyFormula = `1/(1 + e^(-4 * ${copySlope} * (x - ${copyPos})))`;
+
+        return {screenFormula, copyFormula};
     }
 
     makeResultsString() {
@@ -138,14 +150,14 @@ class Logistic extends Test {
         const LRPbox = ui.logisticRegressionProbeBoxHTML(testimate.state.testParams.probe);
 
         const theFormulas = this.makeFormulaStrings();
-        const theShortFormula = theFormulas.shortFormula;
-        const theLongFormula = theFormulas.longFormula;
-        const graphButton = ui.makeRegressionGraphButtonHTML(theLongFormula);
-        const copyFormulaButton = ui.makeCopyFormulaButtonHTML(theLongFormula);
+        const theScreenFormula = theFormulas.screenFormula;
+        const theCopyFormula = theFormulas.copyFormula;
+        const graphButton = ui.makeRegressionGraphButtonHTML(theCopyFormula);
+        const copyFormulaButton = ui.makeCopyFormulaButtonHTML(theCopyFormula);
 
         ui.graphTitle = `P(${data.xName()} = ${testimate.state.testParams.focusGroupX})`;
 
-        console.log(theLongFormula);
+        console.log(theCopyFormula);
 
         const more10button = `<input type = "button" 
             value = "${localize.getString("nMore", 10)}" 
@@ -160,7 +172,7 @@ class Logistic extends Test {
         out += `<br>${localize.getString("tests.logistic.model1", data.yName(), pos)}.`;
         out += `<br>       ${localize.getString("tests.logistic.model2", LSlope)}`;
         out += `<br>    ${localize.getString("tests.logistic.probFunctionHead")}`;
-        out += `<br>       prob(${data.xName()} = ${testimate.state.testParams.focusGroupX}) = ${theShortFormula}`;
+        out += `<br>       prob(${data.xName()} = ${testimate.state.testParams.focusGroupX}) = ${theScreenFormula}`;
 
         out += `<br><br>${graphButton}&emsp;${copyFormulaButton}`;
 

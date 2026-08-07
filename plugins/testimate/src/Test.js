@@ -138,10 +138,16 @@ class Test {
         if (X) {
             const Y = data.yAttData;
 
+            /* combat console clutter
+
             const xType = X && testimate.state.dataTypes[X.name];
             const yType = Y && testimate.state.dataTypes[Y.name];
 
             console.log(`finding tests for ${X && X.name} (${xType}) vs ${Y && Y.name} (${yType}) `);
+
+            */
+
+
             let passed = "";
 
             /*
@@ -174,7 +180,7 @@ class Test {
                 }
             }
         }
-        console.log(`    ... compatible tests: ${out.join(", ")}`);
+        //  console.log(`    ... compatible tests: ${out.join(", ")}`);     //  reduce console clutter
         return out;
     }
 

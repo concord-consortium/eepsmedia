@@ -36,10 +36,6 @@ class OneSampleT extends Test {
         }
         this.results.tCrit = jStat.studentt.inv(theCritParam, this.results.df);
         this.results.xCrit = theHypothesizedValue + this.results.tCrit * this.results.SE;
-
-        const timP = 1 - jStat.studentt.cdf(this.results.t, this.results.df);
-        console.log(`Tim's p-value is ${timP}`);
-
     }
 
     makeResultsString() {
