@@ -28,6 +28,9 @@ const handlers = {
         testimate.refreshDataAndTestResults();
     },
 
+    /**
+     * User changes the confidence level in test configuration
+     */
     changeConf: function () {
         const a = document.getElementById(`confBox`);
         testimate.state.testParams.conf = a.value;
@@ -35,6 +38,9 @@ const handlers = {
         testimate.refreshDataAndTestResults();
     },
 
+    /**
+     * User changes alpha level in test configuration
+     */
     changeAlpha: function () {
         const a = document.getElementById(`alphaBox`);
         testimate.state.testParams.alpha = a.value;
@@ -42,6 +48,10 @@ const handlers = {
         testimate.refreshDataAndTestResults();
     },
 
+    /**
+     * User changes the value against which data are tested in configuration.
+     * As in, testing whether height is greater than 150 -- they changed the 150.
+     */
     changeValue: function () {
         const v = document.getElementById(`valueBox`);
         testimate.state.testParams.value = Number(v.value);
@@ -60,6 +70,10 @@ const handlers = {
         testimate.refreshDataAndTestResults();
     },
 
+    /**
+     * Data emission: user changed the radio button that specifies the "emit mode":
+     * single, a set of random, or all groups
+     */
     changeEmitMode: function() {
         ui.emitMode = document.querySelector("input[name='emitMode']:checked").value;
 
@@ -76,6 +90,9 @@ const handlers = {
         testimate.refreshDataAndTestResults();
     },
 
+    /**
+     * User changes how many randomizations in random emit mode.
+     */
     changeRandomEmitNumber: function () {
         const v = document.getElementById(`randomEmitNumberBox`);
         testimate.state.randomEmitNumber = v.value;
@@ -88,12 +105,23 @@ const handlers = {
         testimate.refreshDataAndTestResults();
     },
 
+    /**
+     * User changes which test is selected by picking on in the menu
+     */
     changeTest: function () {
         const T = document.getElementById(`testMenu`);
         testimate.makeFreshTest(T.value); //  the testID, need for state and restore
         testimate.refreshDataAndTestResults();
     },
 
+    /**
+     * User changes which group (categorical value) is the one
+     * we're primarily counting the X (outcome) variable.
+     * This is set in the test configuration.
+     *
+     * For example, in a test of proportion in a clinical trial,
+     * we might count cases that are "getting well" as opposed to "remaining sick."
+     */
     changeFocusGroupX: function () {
         const initialGroup = testimate.state.testParams.focusGroupX;
         const valueSet = [...data.xAttData.valueSet];
@@ -102,6 +130,14 @@ const handlers = {
         testimate.determineSidesOp();   //      the data are there already; this changes the sign, which changes pValue
         testimate.refreshDataAndTestResults();
     },
+
+    /**
+     * User changes which group (categorical value) is the one
+     * we're primarily counting the Y (predictor) variable.
+     *
+     * For example, in a test of proportion in a clinical trial,
+     * we might focus on cases that are in the "experimental" as opposed to "placebo" group.
+     */
 
     changeFocusGroupY: function () {
         const initialGroup = testimate.state.testParams.focusGroupY;
@@ -112,6 +148,11 @@ const handlers = {
         testimate.refreshDataAndTestResults();
     },
 
+    /**
+     * User reverses the sense of a calculation in a "difference" test.
+     * For example, calculate "Female - Male" for some quantity
+     * instead fo "Male – Female."
+     */
     reverseTestSubtraction : function() {
         testimate.state.testParams.reversed = !testimate.state.testParams.reversed;
         testimate.refreshDataAndTestResults();
@@ -179,7 +220,12 @@ const handlers = {
         connect.showRegressionGraph(data.yName(), xName, iFormula);
     },
 
-
+    /**
+     * Utility! Find the next value in a list; wrap if at the end.
+     * @param iList     the list
+     * @param iValue    the current value
+     * @returns {*}     the "next" value
+     */
     nextValueInList: function (iList, iValue) {
         if (iValue) {
             const iOrig = iList.indexOf(iValue);
@@ -204,21 +250,46 @@ const handlers = {
         data.dirtyData = true;
         testimate.refreshDataAndTestResults();
     },
+    /**
+     * Set of routines to display logs efficiently to the console...
+     */
+    actionLog : [],
+
+    startActionLog : function(firstItem) {
+        handlers.actionLog = [firstItem];
+    },
+
+    addActionLog : function( item ) {
+        handlers.actionLog.push(item);
+    },
+
+    displayActionLog : function() {
+        let message = ">> ";
+        handlers.actionLog.forEach(
+            (L) => {
+                message += " ... " + L;
+            }
+        );
+        console.log(message);
+    },
 
     /**
      * emit test results to CODAP
      */
     emitSingle: async function () {
+        this.startActionLog("single emit");
 
         const theTest = testimate.theTest;
-        console.log(`N = ${theTest.results.N}, P = ${theTest.results.P}`);
         await connect.emitTestData({});
+
+        this.displayActionLog();
     },
 
     /**
      * re-randomize and then emit results to CODAP.
      */
     emitRandom: async function() {
+        this.startActionLog("random emit");
 
         testimate.iteratingRandom = true;   //  set the flag
 
@@ -230,29 +301,32 @@ const handlers = {
 
         testimate.iteratingRandom = false;  //  clear the flag
         testimate.refreshDataAndTestResults();
+
+        this.addActionLog(`${testimate.state.randomEmitNumber}x`);
+        this.displayActionLog();
     },
 
     emitHierarchy: async function() {
+        this.startActionLog("group emit");
 
         for (let i = 0; i < data.topCases.length; i++ ) {
             const tc = data.topCases[i];
 
             const theTopValues = tc.values;    //  must match all of these
-            console.log(`top case ${i}: match values using ${JSON.stringify(theTopValues)}`);
 
             const oneGroupDataset = data.filterGroupCases(data.allCODAPitems, theTopValues);
             if (oneGroupDataset) {
-                //  console.log(`Filtered: ${JSON.stringify(oneGroupDataset)}`)
                 await data.makeXandYArrays(oneGroupDataset);
 
                 await data.removeInappropriateCases();
                 await testimate.theTest.updateTestResults();  //  now we've done the test on this subset
                 await connect.emitTestData(theTopValues);
-                console.log(`top case ${i}: done emitting ${JSON.stringify(theTopValues)}`);
             }
         }
 
         await testimate.refreshDataAndTestResults();
+        this.addActionLog(`${data.topCases.length} groups`);
+        this.displayActionLog();
     },
 
 };
