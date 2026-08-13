@@ -264,12 +264,7 @@ const handlers = {
     },
 
     displayActionLog : function() {
-        let message = ">> ";
-        handlers.actionLog.forEach(
-            (L) => {
-                message += " ... " + L;
-            }
-        );
+        let message = ">> " + handlers.actionLog.join(" ... ");
         console.log(message);
     },
 
