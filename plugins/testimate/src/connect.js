@@ -258,35 +258,43 @@ connect = {
     },
 
     /**
+     *  Create an item to be emitted into `tests and estimates` and emit it.
      *
      * @param iExtras   Extra attributes to be emitted, with values. These are typically the
-     *      high-level attribtes when emitting hierarchically.
+     *      high-level attributes when emitting hierarchically.
      * @returns {Promise<void>}
      */
     emitTestData: async function (iExtras = {}) {
 
-        //  make a new output dataset if necessary
-        //  todo: test for dataset existence (user may have deleted it)
+        /**
+         * Delete the dataset if the user has changed the test type
+         * @type {boolean}
+         */
         if (testimate.state.testID !== testimate.state.mostRecentEmittedTest) {
             await this.deleteOutputDataset();
-
-            const theMessage = {
-                action: "create",
-                resource: "dataContext",
-                values: this.constructEmitDatasetObject(iExtras),
-            };
-
-            try {
-                const result = await codapInterface.sendRequest(theMessage);
-                if (result.success) {
-                    console.log(`success creating dataset, id=${result.values.id}`);
-                } else {
-                    console.log(`problem creating dataset`);
-                }
-            } catch (msg) {
-                alert(`problem creating dataset: ${testimate.constants.emittedDatasetName}`);
-            }
         }
+
+        /**
+         * Make a new dataset; if it already exists, a new one will not be made
+         * @type {{action: string, resource: string, values: {}}}
+         */
+        const theMessage = {
+            action: "create",
+            resource: "dataContext",
+            values: this.constructEmitDatasetObject(iExtras),
+        };
+
+        try {
+            const result = await codapInterface.sendRequest(theMessage);
+            if (result.success) {
+                console.log(`success creating dataset, id=${result.values.id}`);
+            } else {
+                console.log(`problem creating dataset`);
+            }
+        } catch (msg) {
+            alert(`problem creating dataset: ${testimate.constants.emittedDatasetName}`);
+        }
+
 
         //  now emit one item...
 
@@ -299,6 +307,7 @@ connect = {
 
         //  first list the standard attributes (parameters, mostly)
 
+        theItemValues["seq"] = testimate.state.sequenceNumber;
         theItemValues[localize.getString("attributeNames.outcome")] = data.xName();
         theItemValues[localize.getString("attributeNames.predictor")] = (testimate.predictorExists()) ? data.yName() : "";
         theItemValues[localize.getString("attributeNames.procedure")] = theConfig.name;
@@ -356,6 +365,13 @@ connect = {
             let theAttrs = [];
 
             theAttrs.push({
+                //  name: "seq", the sequence number
+                name: localize.getString("attributeNames.seq"),
+                title: localize.getString("attributeNames.seq"),
+                type: "categorical",
+                description: localize.getString("attributeDescriptions.seq")
+            });
+            theAttrs.push({
                 //  name: "outcome",
                 name: localize.getString("attributeNames.outcome"),
                 title: localize.getString("attributeNames.outcome"),
@@ -383,9 +399,9 @@ connect = {
 
             for (const name in iExtras) {
                 theAttrs.push({
-                    name : name,
-                    title : name,
-                    type : 'categorical',
+                    name: name,
+                    title: name,
+                    type: 'categorical',
                     description: 'group'
                 });
             }
@@ -408,7 +424,7 @@ connect = {
             //  this will become the "values" item in the call
             out = {
                 name: testimate.constants.emittedDatasetName,
-                title:  localize.getString("datasetName"),         // testimate.constants.emittedDatasetName,
+                title: localize.getString("datasetName"),         // testimate.constants.emittedDatasetName,
                 collections: [{
                     name: localize.getString("datasetName"),        //  testimate.constants.emittedDatasetName,
                     title: localize.getString("datasetName"),

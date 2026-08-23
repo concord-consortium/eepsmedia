@@ -4,12 +4,10 @@
 
 
     local in local codap :
-        2025-12-04
+        2026-08-05
         http://localhost/codap/static/dg/en/cert/index.html?di=https://localhost/eepsmedia/plugins/testimate/
 
-        http://localhost/~tim/codap/static/dg/en/cert/index.html?di=https://localhost/~tim/plugins/testimate
-    import local: http://localhost/~tim/plugins/testimate
-                    http://localhost/~tim/codap-data-interactives/eepsmedia/plugins/testimate
+    import local: http://localhost/eepsmedia/plugins/testimate
 
     global :
         http://codap.concord.org/app?di=https://codap.xyz/plugins/testimate
@@ -142,7 +140,7 @@
                 <div class="hBox" id="emitRandomGroup">
                     <input type="radio" id="chooseEmitRandom" name="emitMode"
                            value="random" onclick="handlers.changeEmitMode()">
-                    <label id="chooseEmitRandomLabel" for="chooseEmitRandom"></label>
+                    <span id="chooseEmitRandomLabel" for="chooseEmitRandom"></span>
                     <input type="button" id="emitRandomButton"
                            onclick="handlers.emitRandom()"></input>
                     <input type="number" id="randomEmitNumberBox"
@@ -154,7 +152,7 @@
                 <div class="hBox" id="emitHierarchicalGroup">
                     <input type="radio" id="chooseEmitHierarchy" name="emitMode"
                            value="hierarchy" onclick="handlers.changeEmitMode()">
-                    <label id="chooseEmitHierarchyLabel" for="chooseEmitHierarchy"></label>
+                    <span id="chooseEmitHierarchyLabel" for="chooseEmitHierarchy"></span>
                     <input type="button" id="emitHierarchyButton"
                            value="${emitRRButtonTitle}"
                            onclick="handlers.emitHierarchy()"></input>

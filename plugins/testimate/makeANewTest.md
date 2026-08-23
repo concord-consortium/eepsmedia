@@ -19,7 +19,7 @@ arises whether the two attributes are associated.
 These two attributes might be outcome and predictor,
 for example if you have `experimental` and `control` groups
 (which would be the predictor) and wanted to test whether the 
-result was `positive` or `negatative` (the outcome). 
+result was `positive` or `negative` (the outcome). 
 We often hope that the experimental outcome is positive in
 a non-medical context (do students who use our learning tools do better?)
 or negative in a medical setting (do patients who get the drug
@@ -75,7 +75,7 @@ This immediately suggests some of the implementation
 and brings up a question.
 
 First, if it's 2x2, that means that both attributes are _binary_,
-and as a consquence the test "signatire" will begin with `BB`. 
+and as a consequence the test "signature" will begin with `BB`. 
 That means that the test won't even appear unless there are two
 binary attributes selected in the plugin.
 This is great, but what a about a situation where we have categorical
@@ -95,7 +95,7 @@ After a lot of to and fro with Google, I decided to ask Claude,
 who of course gave me sensible and usable code.
 We will document how that went as we go along.
 Right now, the code makes some sense, but I will be studying its logic
-and performance carefuilly as we get into the implementation.
+and performance carefully as we get into the implementation.
 
 Now, as to the order we expect here:
 
@@ -105,7 +105,7 @@ the required functionality.
 using only the attributes as presented. No configuration.
 * Implement and refine the basic text display.
 * Configuration: implement one- and two-sided, first in the console
-with gureilla coding, then using chiclet buttons in the UI.
+with guerilla coding, then using chiclet buttons in the UI.
 * Configuration: ability to change which attribute value is listed first 
 in each attribute. 
 This lets the user focus on the "experimental" group, if any,

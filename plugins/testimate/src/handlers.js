@@ -278,6 +278,7 @@ const handlers = {
         await connect.emitTestData({});
 
         this.displayActionLog();
+        testimate.state.sequenceNumber++;
     },
 
     /**
@@ -291,10 +292,14 @@ const handlers = {
         for (let i = 0; i < testimate.state.randomEmitNumber; i++) {
             await connect.rerandomizeSource(testimate.state.dataset.name);
             await testimate.refreshDataAndTestResults();     //  recompute before emitting
-            await this.emitSingle();
+            await connect.emitTestData({});
+
+            // await this.emitSingle();
         }
 
         testimate.iteratingRandom = false;  //  clear the flag
+        testimate.state.sequenceNumber++;
+
         testimate.refreshDataAndTestResults();
 
         this.addActionLog(`${testimate.state.randomEmitNumber}x`);
@@ -319,6 +324,7 @@ const handlers = {
             }
         }
 
+        testimate.state.sequenceNumber++;
         await testimate.refreshDataAndTestResults();
         this.addActionLog(`${data.topCases.length} groups`);
         this.displayActionLog();
