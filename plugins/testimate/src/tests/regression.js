@@ -69,13 +69,31 @@ class Regression extends Test {
     }
 
     makeResultsString() {
+        /*
+        First we create a slew of strings that we display as numbers on the screen.
+         */
         const NString = Test.makeResultValueString("N", this.results.N);
         const tString = Test.makeResultValueString("t", this.results.t, 3);
         const PString = Test.makePString(this.results.P);
         const dfString = Test.makeResultValueString("df", this.results.df, 3);
 
-        const slope = ui.numberToString(this.results.slope);
-        const intercept = ui.numberToString(this.results.intercept);
+        /*
+        These next four create strings to be used for slope and intercept.
+        If they're displayed on screen, we use numberToString(), which wil make a friendly string for very large values,
+        e.g., 12345678.901 becomes "12.34 M"
+        But if they are to be copied to the clipboard (user presses "copy formula"), we want the entire number.
+
+        "theSign" is important for formatting, so that an intercept has a sign if displayed in a formula
+        as in, 34.5 M * (investment) + 102.2 M; without "theSign" that plus would not appear.
+        This is why we use the absolute value of the intercept (and theSign) for all string display.
+         */
+        const displayStringSlope = ui.numberToString(this.results.slope);   //  -10.1 M
+        const copyStringSlope = this.results.slope;                                //  -10100000
+        const displayStringAbsIntercept = ui.numberToString(Math.abs(this.results.intercept));
+        const copyStringAbsIntercept = Math.abs(this.results.intercept);
+        const theSign = this.results.intercept >= 0 ? "+" : '-';
+
+
         const CISmin = ui.numberToString(this.results.slopeCImin);       //  CI of slope
         const CISmax = ui.numberToString(this.results.slopeCImax);
         const CIImin = ui.numberToString(this.results.interceptCImin);   //  CI of intercept
@@ -87,12 +105,11 @@ class Regression extends Test {
         const conf = ui.numberToString(testimate.state.testParams.conf);
         const alpha = ui.numberToString(testimate.state.testParams.alpha);
 
-        const theSign = intercept >= 0 ? "+" : '-';
 
         const X = data.xName();
         const Y = data.yName();
 
-        ui.graphTitle = `${data.xName()} vs ${data.yName()}`;
+        ui.graphTitle = `${data.xName()} vs ${data.yName()}`;   //  note reversal.
 
         const DSdetails = document.getElementById("DSdetails");
         const DSopen = DSdetails && DSdetails.hasAttribute("open");
@@ -101,16 +118,16 @@ class Regression extends Test {
         const slopeWord = localize.getString("slope");
         const interceptWord = localize.getString("intercept");
 
-        const theLongFormula = `${this.results.slope} * (${Y}) ${theSign} ${Math.abs(this.results.intercept)}`;  //  note reversal!
+        const theCopyFormula = `${copyStringSlope} * (${Y}) ${theSign} ${copyStringAbsIntercept}`;  //  note reversal!
 
         const graphButton = ui.makeRegressionGraphButtonHTML();
-        const copyFormulaButton = ui.makeCopyFormulaButtonHTML(theLongFormula);
+        const copyFormulaButton = ui.makeCopyFormulaButtonHTML(theCopyFormula);
 
         let out = "<pre>";
 
         //  out += `How does (${X}) depend on (${Y})?`
         out += localize.getString("tests.regression.testQuestion", X, Y);
-        out += `<br>    LSRL: ${X} = ${slope} * (${Y}) ${theSign} ${Math.abs(intercept)} `;  //  note reversal!
+        out += `<br>    LSRL: ${X} = ${displayStringSlope} * (${Y}) ${theSign} ${displayStringAbsIntercept} `;  //  note reversal of X, Y!
         out += `<br>    ${NString}, &rho; = ${rho}, r<sup>2</sup> = ${rsq}<br>`;
 
         out += `<br>${graphButton}&emsp;${copyFormulaButton}<br><br>`;
@@ -118,8 +135,8 @@ class Regression extends Test {
 
         out += `<details id="DSdetails" ${DSopen ? "open" : ""}>`;
         out += localize.getString("tests.regression.detailsSummary", X, Y);
-        out += `<table class="test-results"><tr><td>${slopeWord}</td><td>${slope}</td><td>${conf}% ${localize.getString("CI")} = [${CISmin}, ${CISmax}]</td></tr>`;
-        out += `<tr><td>${interceptWord}</td><td>${intercept}</td><td>${conf}% ${localize.getString("CI")} = [${CIImin}, ${CIImax}]</td></tr></table>`;
+        out += `<table class="test-results"><tr><td>${slopeWord}</td><td>${displayStringSlope}</td><td>${conf}% ${localize.getString("CI")} = [${CISmin}, ${CISmax}]</td></tr>`;
+        out += `<tr><td>${interceptWord}</td><td>${theSign}${displayStringAbsIntercept}</td><td>${conf}% ${localize.getString("CI")} = [${CIImin}, ${CIImax}]</td></tr></table>`;
         out += `<br> `;
         out += `${testingSlopePhrase} ${testimate.state.testParams.theSidesOp} ${testimate.state.testParams.value} `;
         out += `<br>    ${tString}, ${PString}`;

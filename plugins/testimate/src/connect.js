@@ -69,7 +69,7 @@ connect = {
             result = await codapInterface.sendRequest(tMessage);
             if (result.success) {
                 out = result.values; //  includes attributes but no cases
-                console.log(`    *   got dataset info`);
+                //      console.log(`    *   got dataset info`);
             } else {
                 console.log(`Failure getting source dataset info`);
             }
@@ -290,12 +290,12 @@ connect = {
 
         //  now emit one item...
 
-        let theItemValues = {};     //      Object.assign({}, iExtras);
+        let theItemValues = {};
         const theTest = testimate.theTest;
         const theConfig = theTest.theConfig;
         const emittedAttributeNames = theConfig.emitted.split(",");
 
-        console.log(`   emitting a case with N = ${theTest.results.N}`);
+        //  console.log(`   emitting a case with N = ${theTest.results.N}`);
 
         //  first list the standard attributes (parameters, mostly)
 
@@ -332,7 +332,7 @@ connect = {
         };
         const result = await codapInterface.sendRequest(itemMessage);
         if (result.success) {
-            console.log(`success creating item id=${result.itemIDs[0]}`);
+            //  console.log(`success creating item id=${result.itemIDs[0]}`);
         } else {
             console.log(`problem creating item`);
         }

@@ -10,12 +10,12 @@ testimate.dropManager = {
         switch(iMessage.values.operation) {
             case   `dragstart`:
                 this.currentlyDraggingCODAPAttribute = true;
-                console.log(`    drag start`);
+                //  console.log(`    drag start`);
                 break;
             case   `dragend`:
                 this.currentlyDraggingCODAPAttribute = false;
                 testimate.dropManager.highlightNone();
-                console.log(`    drag end`);
+                //  console.log(`    drag end`);
                 break;
             case   `drag`:
                 testimate.dropManager.handleDrag(iMessage.values.position);
@@ -28,12 +28,12 @@ testimate.dropManager = {
                 );
                 break;
             case   `dragenter`:
-                console.log(`    drag enter`);
+                //  console.log(`    drag enter`);
                 testimate.dropManager.highlightNear();
                 break;
             case   `dragleave`:
                 testimate.dropManager.highlightNone();
-                console.log(`    drag leave`);
+                //  console.log(`    drag leave`);
                 break;
         }
     },

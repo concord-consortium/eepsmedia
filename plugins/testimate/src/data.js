@@ -87,7 +87,7 @@ const data = {
             testimate.state.testParams.focusGroupY = testimate.setFocusGroup(this.yAttData, null);
         }
 
-        if (this.xAttData) console.log(`    made xAttData (${this.xAttData.theRawArray.length})`);
+        //  if (this.xAttData) console.log(`    made xAttData (${this.xAttData.theRawArray.length})`);  // reduce console clutter
     },
 
     removeInappropriateCases: async function () {
@@ -153,12 +153,15 @@ const data = {
         this.xAttData.theArray = newXArray;
         if (this.yAttData) this.yAttData.theArray = newYArray;
 
+        /*
         console.log(`    cleaned xAttData (${this.xAttData.theArray.length})`);
 
         if (this.xAttData.theArray.length < 20)
             console.log(`cleaned x = ${JSON.stringify(this.xAttData.theArray)}`);
         if (this.yAttData && this.yAttData.theArray && this.yAttData.theArray.length < 20)
             console.log(`\ncleaned y = ${JSON.stringify(this.yAttData.theArray)}`);
+             //  reduce console clutter
+         */
     },
 
     /**

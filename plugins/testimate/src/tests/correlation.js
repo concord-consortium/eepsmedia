@@ -53,8 +53,10 @@ class Correlation extends Test {
             const L = zr - halfWidth;
             const U = zr + halfWidth;
 
+            /* if CI bounds are out of range, pin them to [-1, 1] */
             this.results.CImin = (Math.exp(2 * L) - 1) / (Math.exp(2 * L) + 1);   //  numeric value
-            this.results.CImax = (Math.exp(2 * U) - 1) / (Math.exp(2 * U) + 1);   //  numeric value
+            this.results.CImin = this.results.CImin < -1 ? -1 : this.results.CImin;
+            this.results.CImax =  U === Infinity ? 1 : (Math.exp(2 * U) - 1) / (Math.exp(2 * U) + 1);   //  numeric value
 
             const tAbs = Math.abs(this.results.t);
             this.results.P = jStat.studentt.cdf(-tAbs, this.results.df);

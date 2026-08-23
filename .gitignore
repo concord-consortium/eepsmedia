@@ -3,3 +3,4 @@ node_modules
 npm-debug.log
 *.iml
 .DS_Store
+/plugins/testimate/testimate with groups v2.csv
