@@ -4,7 +4,7 @@
 
 
     local in local codap :
-        2026-08-05
+        2025-12-23
         http://localhost/codap/static/dg/en/cert/index.html?di=https://localhost/eepsmedia/plugins/testimate/
 
     import local: http://localhost/eepsmedia/plugins/testimate
@@ -140,7 +140,7 @@
                 <div class="hBox" id="emitRandomGroup">
                     <input type="radio" id="chooseEmitRandom" name="emitMode"
                            value="random" onclick="handlers.changeEmitMode()">
-                    <span id="chooseEmitRandomLabel" for="chooseEmitRandom"></span>
+                    <label id="chooseEmitRandomLabel" for="chooseEmitRandom"></label>
                     <input type="button" id="emitRandomButton"
                            onclick="handlers.emitRandom()"></input>
                     <input type="number" id="randomEmitNumberBox"
@@ -152,7 +152,7 @@
                 <div class="hBox" id="emitHierarchicalGroup">
                     <input type="radio" id="chooseEmitHierarchy" name="emitMode"
                            value="hierarchy" onclick="handlers.changeEmitMode()">
-                    <span id="chooseEmitHierarchyLabel" for="chooseEmitHierarchy"></span>
+                    <label id="chooseEmitHierarchyLabel" for="chooseEmitHierarchy"></label>
                     <input type="button" id="emitHierarchyButton"
                            value="${emitRRButtonTitle}"
                            onclick="handlers.emitHierarchy()"></input>
