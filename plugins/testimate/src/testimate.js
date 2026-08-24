@@ -265,6 +265,7 @@ const testimate = {
             focusGroupDictionary : {},
             testParamDictionary : {},
             valueDictionary : {},       //  records the number in the "value" box
+            sequenceNumber : 1
         }
     }
 };
